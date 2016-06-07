@@ -99,8 +99,20 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-  //hitting any key swaps the camera view
-  usecamera = !usecamera;
+	switch (key) {
+	case ' ':
+		//hitting space key swaps the camera view
+		usecamera = !usecamera;
+		break;
+	case 'f':
+	case 'F':
+		//hitting 'f' key toggles full screen mode
+		ofToggleFullscreen();
+		break;
+	default:
+		break;
+	}
+
 }
 
 //--------------------------------------------------------------
