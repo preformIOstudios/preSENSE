@@ -15,9 +15,9 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	//just set up the openFrameworks stuff
-    ofSetFrameRate(60);
+    ofSetFrameRate(60);//TODO: put this into the GUI
     ofSetVerticalSync(true);
-    ofBackground(255);
+    ofBackground(255);//TODO: put this into the GUI
 
 	//initialize the variable so it's off at the beginning
     usecamera = false;
@@ -110,7 +110,7 @@ void ofApp::draw(){
         camera.begin();
     }
 
-	ofSetColor(0);
+	ofSetColor(0);//TODO: put this into the GUI
 	//do the same thing from the first example...
     ofMesh mesh;
 	mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
@@ -138,7 +138,8 @@ void ofApp::draw(){
 		//use the map function to determine the distance.
 		//the longer the distance, the narrower the line.
 		//this makes it look a bit like brush strokes
-		float thickness = ofMap(distance, 0, 60, 20, 2, true);
+		float thickness = ofMap(distance, 0, 60, 20, 2, true);//TODO: put these constants into the GUI
+															  //TODO: have tail shrink towards end so it disappears
 
 		//calculate the points to the left and to the right
 		//by extending the current point in the direction of left/right by the length
@@ -161,14 +162,14 @@ void ofApp::draw(){
 
 	ofPushStyle();
 	//TODO: move these hardcoded numbers into GUI
-	ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
-	ofSetColor(127);
+	ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);//TODO: put this into the GUI
+	ofSetColor(127);//TODO: put this into the GUI
 	if (debugging) {
 		kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 
-																		   // Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
 		float colorHeight = previewWidth * (kinect.getColorSource()->getHeight() / kinect.getColorSource()->getWidth());
 		float colorTop = (previewHeight - colorHeight) / 2.0;
+		// Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
 
 		kinect.getColorSource()->draw(previewWidth, 0 + colorTop, previewWidth, colorHeight);
 		kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
@@ -217,7 +218,7 @@ void ofApp::keyReleased(int key){
 void ofApp::mouseMoved(int x, int y ){
 	//if we are using the camera, the mouse moving should rotate it around the whole sculpture
     if(usecamera){
-        float rotateAmount = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 360);
+        float rotateAmount = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 360);//TODO: put this into the GUI
         ofVec3f furthestPoint;
         if (points.size() > 0) {
             furthestPoint = points[0];
