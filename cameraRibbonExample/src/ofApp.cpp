@@ -21,6 +21,9 @@ void ofApp::setup(){
 
 	//initialize the variable so it's off at the beginning
     usecamera = false;
+
+	//set to false just so it has a value
+	debugging = false;
 }
 
 //--------------------------------------------------------------
@@ -95,20 +98,37 @@ void ofApp::draw(){
     	camera.end();
     }
 
+	ofPushStyle();
+	//TODO: move these hardcoded numbers into GUI
+	ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+	ofSetColor(127);
+	if (debugging) {
+	}
+	ofPopStyle();
+
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 	switch (key) {
+
 	case ' ':
 		//hitting space key swaps the camera view
 		usecamera = !usecamera;
 		break;
+
+	case 'd':
+	case 'D':
+		//hitting space key swaps the camera view
+		debugging = !debugging;
+		break;
+
 	case 'f':
 	case 'F':
 		//hitting 'f' key toggles full screen mode
 		ofToggleFullscreen();
 		break;
+
 	default:
 		break;
 	}
@@ -172,7 +192,8 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+	previewWidth = ofGetWindowWidth() / 2;
+	previewHeight = ofGetWindowHeight() / 2;
 }
 
 //--------------------------------------------------------------

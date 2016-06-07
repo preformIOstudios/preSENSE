@@ -42,4 +42,11 @@ class ofApp : public ofBaseApp{
 	
 	//if usecamera is true, we'll turn on the camera view
     bool usecamera;
+
+private:
+
+	//debugging variables
+	bool debugging;
+	int previewWidth;
+	int previewHeight;
 };
