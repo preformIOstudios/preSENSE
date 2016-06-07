@@ -69,26 +69,33 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	if( key == '1'){
+	switch (key) {
+	case '1':
 		currentMode = PARTICLE_MODE_ATTRACT;
-		currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse"; 		
-	}
-	if( key == '2'){
+		currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse";
+		break;
+	case '2':
 		currentMode = PARTICLE_MODE_REPEL;
-		currentModeStr = "2 - PARTICLE_MODE_REPEL: repels from mouse"; 				
-	}
-	if( key == '3'){
+		currentModeStr = "2 - PARTICLE_MODE_REPEL: repels from mouse";
+		break;
+	case '3':
 		currentMode = PARTICLE_MODE_NEAREST_POINTS;
-		currentModeStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'f' to disable force"; 						
-	}
-	if( key == '4'){
+		currentModeStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'f' to disable force";
+		break;
+	case '4':
 		currentMode = PARTICLE_MODE_NOISE;
-		currentModeStr = "4 - PARTICLE_MODE_NOISE: snow particle simulation"; 						
+		currentModeStr = "4 - PARTICLE_MODE_NOISE: snow particle simulation";
 		resetParticles();
-	}	
-		
-	if( key == ' ' ){
+		break;
+	case ' ':
 		resetParticles();
+		break;
+	case 'f':
+	case 'F':
+		ofToggleFullscreen();
+		break;
+	default :
+		break;
 	}
 }
 
