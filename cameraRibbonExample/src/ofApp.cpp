@@ -27,8 +27,8 @@ void ofApp::setup(){
 	//TODO: only initialize necessary sources
 	kinect.open();
 	kinect.initDepthSource();
-	kinect.initColorSource();
-	kinect.initInfraredSource();
+	//kinect.initColorSource();
+	//kinect.initInfraredSource();
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
 
@@ -167,17 +167,16 @@ void ofApp::draw(){
 	if (debugging) {
 		kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 
-		float colorHeight = previewWidth * (kinect.getColorSource()->getHeight() / kinect.getColorSource()->getWidth());
-		float colorTop = (previewHeight - colorHeight) / 2.0;
 		// Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
+		//float colorHeight = previewWidth * (kinect.getColorSource()->getHeight() / kinect.getColorSource()->getWidth());
+		//float colorTop = (previewHeight - colorHeight) / 2.0;
 
-		kinect.getColorSource()->draw(previewWidth, 0 + colorTop, previewWidth, colorHeight);
-		kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
+		//kinect.getColorSource()->draw(previewWidth, 0 + colorTop, previewWidth, colorHeight);
+		//kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
 
-		kinect.getInfraredSource()->draw(0, previewHeight, previewWidth, previewHeight);
-
-		kinect.getBodyIndexSource()->draw(previewWidth, previewHeight, previewWidth, previewHeight);
-		kinect.getBodySource()->drawProjected(previewWidth, previewHeight, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
+		//kinect.getInfraredSource()->draw(0, 0, previewWidth, previewHeight);
+		kinect.getBodyIndexSource()->draw(0, 0, previewWidth, previewHeight);
+		kinect.getBodySource()->drawProjected(0, 0, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
 	}
 	ofPopStyle();
 
@@ -275,8 +274,8 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-	previewWidth = ofGetWindowWidth() / 2;
-	previewHeight = ofGetWindowHeight() / 2;
+	previewWidth = ofGetWindowWidth() * previewScaleW;
+	previewHeight = ofGetWindowHeight() * previewScaleH;
 }
 
 //--------------------------------------------------------------
