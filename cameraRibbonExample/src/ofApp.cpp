@@ -21,6 +21,7 @@ void ofApp::setup(){
 
 	//initialize the variable so it's off at the beginning
     usecamera = false;
+	pointsMax = 1000; //TODO: put this into the GUI
 
 	//initialize kinect object
 	//TODO: only initialize necessary sources
