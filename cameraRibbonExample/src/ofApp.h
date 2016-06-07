@@ -12,6 +12,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxKinectForWindows2.h"
 
 class ofApp : public ofBaseApp{
 
@@ -42,6 +43,9 @@ class ofApp : public ofBaseApp{
 	
 	//if usecamera is true, we'll turn on the camera view
     bool usecamera;
+
+	//kinect device reference
+	ofxKFW2::Device kinect;
 
 private:
 

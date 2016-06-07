@@ -22,6 +22,15 @@ void ofApp::setup(){
 	//initialize the variable so it's off at the beginning
     usecamera = false;
 
+	//initialize kinect object
+	//TODO: only initialize necessary sources
+	kinect.open();
+	kinect.initDepthSource();
+	kinect.initColorSource();
+	kinect.initInfraredSource();
+	kinect.initBodySource();
+	kinect.initBodyIndexSource();
+
 	//set to false just so it has a value
 	debugging = false;
 }
@@ -37,6 +46,50 @@ void ofApp::update(){
         }
         center = sumOfAllPoints / points.size();
     }
+
+	/////////////////
+	// Kinect
+	///////////////////
+	kinect.update();
+
+	//--
+	//Getting joint positions (skeleton tracking)
+	//--
+	//
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		for (auto body : bodies) {
+			for (auto joint : body.joints) {
+				//TODO: now do something with the joints
+			}
+		}
+	}
+	//
+	//--
+
+
+
+	//--
+	//Getting bones (connected joints)
+	//--
+	//
+	{
+		// Note that for this we need a reference of which joints are connected to each other.
+		// We call this the 'boneAtlas', and you can ask for a reference to this atlas whenever you like
+		auto bodies = kinect.getBodySource()->getBodies();
+		auto boneAtlas = ofxKinectForWindows2::Data::Body::getBonesAtlas();
+
+		for (auto body : bodies) {
+			for (auto bone : boneAtlas) {
+				auto firstJointInBone = body.joints[bone.first];
+				auto secondJointInBone = body.joints[bone.second];
+
+				//TODO: now do something with the joints
+			}
+		}
+	}
+	//
+	//--
 }
 
 //--------------------------------------------------------------
@@ -103,6 +156,23 @@ void ofApp::draw(){
 	ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
 	ofSetColor(127);
 	if (debugging) {
+		kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
+
+																		   // Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
+		float colorHeight = previewWidth * (kinect.getColorSource()->getHeight() / kinect.getColorSource()->getWidth());
+		float colorTop = (previewHeight - colorHeight) / 2.0;
+
+		kinect.getColorSource()->draw(previewWidth, 0 + colorTop, previewWidth, colorHeight);
+		kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
+
+		kinect.getInfraredSource()->draw(0, previewHeight, previewWidth, previewHeight);
+
+		kinect.getBodyIndexSource()->draw(previewWidth, previewHeight, previewWidth, previewHeight);
+		kinect.getBodySource()->drawProjected(previewWidth, previewHeight, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
+
+		//TODO: add debug instrcutions gui & text
+		// change color settings
+		// set mode to debugging
 	}
 	ofPopStyle();
 
