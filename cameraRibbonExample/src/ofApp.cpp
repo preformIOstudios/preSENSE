@@ -21,14 +21,14 @@ void ofApp::setup(){
 
 	//initialize the variable so it's off at the beginning
     usecamera = false;
-	pointsMax = 1000; //TODO: put this into the GUI
+	pointsMax = 100; //TODO: put this into the GUI
 
 	//initialize kinect object
 	//TODO: only initialize necessary sources
 	kinect.open();
 	kinect.initDepthSource();
-	//kinect.initColorSource();
-	//kinect.initInfraredSource();
+	kinect.initColorSource();
+	kinect.initInfraredSource();
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
 
@@ -48,11 +48,24 @@ void ofApp::update(){
 	//don't move the points if we are using the camera
     if(!usecamera){
         ofVec3f sumOfAllPoints(0,0,0);
+		int pointCount = 0;
         for(unsigned int i = 0; i < points.size(); i++){
             points[i].z -= 4;
             sumOfAllPoints += points[i];
+			pointCount += 1;
         }
-        center = sumOfAllPoints / points.size();
+
+		for (auto body : ribbons) {
+			for (auto ribbon : body) {
+				for (unsigned int i = 0; i < ribbon.size(); i++) {
+					ribbon[i].z += 4; // TODO: figure out why this isn't working
+					sumOfAllPoints += ribbon[i];
+					pointCount += 1;
+				}
+			}
+		}
+
+        center = sumOfAllPoints / pointCount;
     }
 
 	/////////////////
@@ -77,13 +90,45 @@ void ofApp::update(){
 		auto bodies = kinect.getBodySource()->getBodies();
 		auto boneAtlas = ofxKinectForWindows2::Data::Body::getBonesAtlas();
 
+		ribbons.resize(bodies.size());
+		int bodyIDX = 0;
 		for (auto body : bodies) {
-			for (auto bone : boneAtlas) {
-				auto firstJointInBone = body.joints[bone.first];
-				auto secondJointInBone = body.joints[bone.second];
+			if (body.tracked) {
+				ribbons[bodyIDX].resize(boneAtlas.size());
+				int boneIDX = 0; // each bone gets a ribbon (for now)
+				for (auto bone : boneAtlas) {
 
-				//TODO: now do something with the joints
+					auto firstJointInBone = body.joints[bone.first];
+					auto secondJointInBone = body.joints[bone.second];
+					ofVec3f firstJPos = firstJointInBone.getPositionInDepthMap();
+					ofVec3f secondJPos = secondJointInBone.getPositionInDepthMap();
+
+					firstJPos.z = firstJointInBone.getPosition().z;
+					secondJPos.z = secondJointInBone.getPosition().z;
+					firstJPos *= depthMapScale;
+					secondJPos *= depthMapScale;
+
+
+
+					//TODO: now do something with the joints
+					if (ribbons[bodyIDX][boneIDX].size() <= pointsMax -2) {
+						ribbons[bodyIDX][boneIDX].push_back(firstJPos);
+						ribbons[bodyIDX][boneIDX].push_back(secondJPos);
+					} else {
+						for (int i = 0; i < pointsMax - 2; i += 2) {
+							ribbons[bodyIDX][boneIDX][i] = ribbons[bodyIDX][boneIDX][i + 2];
+							ribbons[bodyIDX][boneIDX][i+1] = ribbons[bodyIDX][boneIDX][i + 3];
+						}
+						ribbons[bodyIDX][boneIDX][pointsMax - 2] = firstJPos;
+						ribbons[bodyIDX][boneIDX][pointsMax - 1] = secondJPos;
+
+					}
+					boneIDX += 1;
+				}
+			} else {
+				ribbons[bodyIDX].resize(0);
 			}
+			bodyIDX += 1;
 		}
 	}
 }
@@ -142,6 +187,28 @@ void ofApp::draw(){
 	//end the shape
 	mesh.draw();
 
+	// draw ribbons
+	ofSetColor(0);//TODO: put this into the GUI
+	for (unsigned int bodyIDX = 0; bodyIDX < ribbons.size(); bodyIDX++) {
+		for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyIDX].size(); boneIDX++) {
+			ofMesh meshRibbon;
+			meshRibbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+			for (unsigned int point = 0; point < ribbons[bodyIDX][boneIDX].size(); point++) {
+				//add each joint to the triangle strip
+				meshRibbon.addVertex(ribbons[bodyIDX][boneIDX][point]);
+			}
+
+			//end the shape
+			meshRibbon.draw();
+
+			if (debugging) {
+				// debug joints string
+				ofSetColor(230);
+				ofDrawBitmapString("\n\nribbons[" + ofToString(bodyIDX) + "][" + ofToString(boneIDX) + "] = " + ofToString(ribbons[bodyIDX][boneIDX]), 10, 20 + 30 * (bodyIDX + 1) + 10 * (boneIDX + 1));
+			}
+		}
+	}
+
 
 	//if we're using the camera, take it away
     if(usecamera){
@@ -153,7 +220,7 @@ void ofApp::draw(){
 	ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);//TODO: put this into the GUI
 	ofSetColor(127);//TODO: put this into the GUI
 	if (debugging) {
-		kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
+		//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 
 		// Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
 		//float colorHeight = previewWidth * (kinect.getColorSource()->getHeight() / kinect.getColorSource()->getWidth());
@@ -264,6 +331,9 @@ void ofApp::mouseExited(int x, int y){
 void ofApp::windowResized(int w, int h){
 	previewWidth = ofGetWindowWidth() * previewScaleW;
 	previewHeight = ofGetWindowHeight() * previewScaleH;
+	float depthMapScaleW = previewWidth / 512.0f;
+	float depthMapScaleH = previewHeight / 424.0f;
+	depthMapScale = ofVec3f(depthMapScaleH, depthMapScaleW, (depthMapScaleH + depthMapScaleW)/2.0f);
 }
 
 //--------------------------------------------------------------

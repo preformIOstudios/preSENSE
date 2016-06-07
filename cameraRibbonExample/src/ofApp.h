@@ -35,6 +35,7 @@ class ofApp : public ofBaseApp{
 	
 	//this holds all of our points
     vector<ofVec3f> points;
+	vector < vector < vector <ofVec3f> > > ribbons;
 	int pointsMax;
     //this keeps track of the center of all the points
     ofVec3f center;
@@ -56,4 +57,5 @@ private:
 	int previewHeight;
 	float previewScaleW;
 	float previewScaleH;
+	ofVec3f depthMapScale;
 };
