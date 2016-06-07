@@ -4,11 +4,11 @@
 void ofApp::setup(){
 	ofSetVerticalSync(true);
 	
-	int num = 1500;
+	int num = 1500; //TODO: move hard coded values into GUI
 	p.assign(num, demoParticle());
-	currentMode = PARTICLE_MODE_ATTRACT;
+	currentMode = PARTICLE_MODE_ATTRACT;//TODO: move hard coded values into GUI
 
-	currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse"; 
+	currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse"; //TODO: move hard coded values into GUI
 
 	resetParticles();
 
@@ -22,7 +22,7 @@ void ofApp::setup(){
 	kinect.initBodyIndexSource();
 
 	//set to false just so it has a value
-	debugging = false;
+	debugging = false;//TODO: move hard coded values into GUI
 
 }
 
@@ -31,7 +31,7 @@ void ofApp::resetParticles(){
 
 	//these are the attraction points used in the forth demo 
 	attractPoints.clear();
-	for(int i = 0; i < 4; i++){
+	for(int i = 0; i < 4; i++){ //TODO: move hard coded values into GUI
 		attractPoints.push_back( ofPoint( ofMap(i, 0, 4, 100, ofGetWidth()-100) , ofRandom(100, ofGetHeight()-100) ) );
 	}
 	
@@ -51,10 +51,7 @@ void ofApp::update(){
 	///////////////////
 	kinect.update();
 
-	//--
 	//Getting joint positions (skeleton tracking)
-	//--
-	//
 	{
 		auto bodies = kinect.getBodySource()->getBodies();
 		for (auto body : bodies) {
@@ -63,15 +60,8 @@ void ofApp::update(){
 			}
 		}
 	}
-	//
-	//--
 
-
-
-	//--
 	//Getting bones (connected joints)
-	//--
-	//
 	{
 		// Note that for this we need a reference of which joints are connected to each other.
 		// We call this the 'boneAtlas', and you can ask for a reference to this atlas whenever you like
@@ -87,8 +77,6 @@ void ofApp::update(){
 			}
 		}
 	}
-	//
-	//--
 
 	//////////////////
 	// Particles
@@ -100,14 +88,14 @@ void ofApp::update(){
 	
 	//lets add a bit of movement to the attract points
 	for(unsigned int i = 0; i < attractPointsWithMovement.size(); i++){
-		attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;
-		attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;
+		attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
+		attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
 	}	
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackgroundGradient(ofColor(60,60,60), ofColor(10,10,10));
+    ofBackgroundGradient(ofColor(60,60,60), ofColor(10,10,10));//TODO: move hard coded values into GUI
 
 	for(unsigned int i = 0; i < p.size(); i++){
 		p[i].draw();
@@ -117,20 +105,20 @@ void ofApp::draw(){
 	if( currentMode == PARTICLE_MODE_NEAREST_POINTS ){
 		for(unsigned int i = 0; i < attractPoints.size(); i++){
 			ofNoFill();
-			ofDrawCircle(attractPointsWithMovement[i], 10);
+			ofDrawCircle(attractPointsWithMovement[i], 10);//TODO: move hard coded values into GUI
 			ofFill();
-			ofDrawCircle(attractPointsWithMovement[i], 4);
+			ofDrawCircle(attractPointsWithMovement[i], 4);//TODO: move hard coded values into GUI
 		}
 	}
 
-	ofSetColor(230);	
-	ofDrawBitmapString(currentModeStr + "\n\nSpacebar to reset. \nKeys 1-4 to change mode.", 10, 20);
+	ofSetColor(230);	//TODO: move hard coded values into GUI
+	ofDrawBitmapString(currentModeStr + "\n\nSpacebar to reset. \nKeys 1-4 to change mode.", 10, 20);//TODO: move hard coded values into GUI
 
 	ofPushStyle();
 	//TODO: move these hardcoded numbers into GUI
-	ofEnableBlendMode(OF_BLENDMODE_SCREEN);
-	ofSetColor(127);
-	if (debugging) {
+	ofEnableBlendMode(OF_BLENDMODE_SCREEN);//TODO: move hard coded values into GUI
+	ofSetColor(127);//TODO: move hard coded values into GUI
+	if (debugging) {//TODO: move hard coded values into GUI
 		kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 
 																		   // Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
@@ -154,7 +142,7 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key){ //TODO: move key presses into GUI
 	switch (key) {
 
 	case '1':
@@ -235,8 +223,8 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-	previewWidth = ofGetWindowWidth() / 2;
-	previewHeight = ofGetWindowHeight() / 2;
+	previewWidth = ofGetWindowWidth() / 2;//TODO: move hard coded values into GUI
+	previewHeight = ofGetWindowHeight() / 2;//TODO: move hard coded values into GUI
 }
 
 //--------------------------------------------------------------
