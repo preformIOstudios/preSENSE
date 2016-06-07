@@ -58,4 +58,5 @@ private:
 	float previewScaleW;
 	float previewScaleH;
 	ofVec3f depthMapScale;
+
 };
