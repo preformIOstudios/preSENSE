@@ -41,5 +41,8 @@ private:
 	bool debugging;
 	int previewWidth;
 	int previewHeight;
+	float previewScaleW;
+	float previewScaleH;
+	ofVec3f depthMapScale;
 
 };

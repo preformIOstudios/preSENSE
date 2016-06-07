@@ -21,8 +21,14 @@ void ofApp::setup(){
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
 
-	//set to false just so it has a value
-	debugging = false;//TODO: move hard coded values into GUI
+	//set debugging variables
+	debugging = false;//TODO: put this into the GUI
+	previewScaleH = 1.0f;//TODO: put this into the GUI
+	previewScaleW = 1.0f;//TODO: put this into the GUI
+
+	//TODO: setup gui & text instructions for keypresses, etc.
+	// change color settings
+	// set mode to debugging
 
 }
 
@@ -223,8 +229,11 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-	previewWidth = ofGetWindowWidth() / 2;//TODO: move hard coded values into GUI
-	previewHeight = ofGetWindowHeight() / 2;//TODO: move hard coded values into GUI
+	previewWidth = ofGetWindowWidth() * previewScaleW;
+	previewHeight = ofGetWindowHeight() * previewScaleH;
+	float depthMapScaleW = previewWidth / 512.0f;
+	float depthMapScaleH = previewHeight / 424.0f;
+	depthMapScale = ofVec3f(depthMapScaleH, depthMapScaleW, (depthMapScaleH + depthMapScaleW) / 2.0f);
 }
 
 //--------------------------------------------------------------

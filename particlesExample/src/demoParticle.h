@@ -8,7 +8,7 @@ enum particleMode{
 	PARTICLE_MODE_NOISE
 };
 
-class demoParticle{
+class demoParticle{	
 
 	public:
 		demoParticle();
