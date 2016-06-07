@@ -35,6 +35,7 @@ class ofApp : public ofBaseApp{
 	
 	//this holds all of our points
     vector<ofVec3f> points;
+	int pointsMax;
     //this keeps track of the center of all the points
     ofVec3f center;
     
@@ -53,4 +54,6 @@ private:
 	bool debugging;
 	int previewWidth;
 	int previewHeight;
+	float previewScaleW;
+	float previewScaleH;
 };

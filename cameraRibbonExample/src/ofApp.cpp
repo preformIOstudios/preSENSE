@@ -31,8 +31,15 @@ void ofApp::setup(){
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
 
-	//set to false just so it has a value
-	debugging = false;
+	//set debugging variables
+	debugging = false;//TODO: put this into the GUI
+	previewScaleH = 1.0f;//TODO: put this into the GUI
+	previewScaleW = 1.0f;//TODO: put this into the GUI
+
+	//TODO: setup gui & text instructions for keypresses, etc.
+	// change color settings
+	// set mode to debugging
+
 }
 
 //--------------------------------------------------------------
@@ -169,10 +176,6 @@ void ofApp::draw(){
 
 		kinect.getBodyIndexSource()->draw(previewWidth, previewHeight, previewWidth, previewHeight);
 		kinect.getBodySource()->drawProjected(previewWidth, previewHeight, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
-
-		//TODO: add debug instrcutions gui & text
-		// change color settings
-		// set mode to debugging
 	}
 	ofPopStyle();
 
@@ -231,7 +234,15 @@ void ofApp::mouseMoved(int x, int y ){
 	//otherwise add points like before
     else{
         ofVec3f mousePoint(x,y,0);
-        points.push_back(mousePoint);
+		if (points.size() < pointsMax) {
+			points.push_back(mousePoint);
+		}
+		else {
+			for (int i = 0; i < pointsMax-1; i++) {
+				points[i] = points[i + 1];
+			}
+			points[pointsMax-1] = mousePoint;
+		}
     }
 }
 
