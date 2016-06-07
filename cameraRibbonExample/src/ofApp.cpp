@@ -60,10 +60,7 @@ void ofApp::update(){
 	///////////////////
 	kinect.update();
 
-	//--
 	//Getting joint positions (skeleton tracking)
-	//--
-	//
 	{
 		auto bodies = kinect.getBodySource()->getBodies();
 		for (auto body : bodies) {
@@ -72,15 +69,8 @@ void ofApp::update(){
 			}
 		}
 	}
-	//
-	//--
 
-
-
-	//--
 	//Getting bones (connected joints)
-	//--
-	//
 	{
 		// Note that for this we need a reference of which joints are connected to each other.
 		// We call this the 'boneAtlas', and you can ask for a reference to this atlas whenever you like
@@ -96,8 +86,6 @@ void ofApp::update(){
 			}
 		}
 	}
-	//
-	//--
 }
 
 //--------------------------------------------------------------
@@ -233,7 +221,7 @@ void ofApp::mouseMoved(int x, int y ){
         camera.lookAt(center);
     }
 	//otherwise add points like before
-    else{
+    else {
         ofVec3f mousePoint(x,y,0);
 		if (points.size() < pointsMax) {
 			points.push_back(mousePoint);
