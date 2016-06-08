@@ -58,22 +58,42 @@ void demoParticle::update(){
 		vel += frc * 0.6; //apply force //TODO: move hard coded values into GUI
 	}
 	else if( mode == PARTICLE_MODE_REPEL && attractPoints ){ //TODO: update this to be repelled by attract points
-		ofPoint attractPt(ofGetMouseX(), ofGetMouseY());
-		frc = attractPt-pos; 
-		
-		//let get the distance and only repel points close to the mouse
-		float dist = frc.length();
-		frc.normalize(); 
-		
-		vel *= drag; 
-		if( dist < 150 ){//TODO: move hard coded values into GUI
-			vel += -frc * 0.6; //notice the frc is negative //TODO: move hard coded values into GUI
-		}else{
-			//if the particles are not close to us, lets add a little bit of random movement using noise. this is where uniqueVal comes in handy. 			
-			frc.x = ofSignedNoise(uniqueVal, pos.y * 0.01, ofGetElapsedTimef()*0.2);//TODO: move hard coded values into GUI
-			frc.y = ofSignedNoise(uniqueVal, pos.x * 0.01, ofGetElapsedTimef()*0.2);//TODO: move hard coded values into GUI
-			vel += frc * 0.04;//TODO: move hard coded values into GUI
+
+		//1 - find closest attractPoint 
+		ofPoint closestPt;
+		int closest = -1;
+		float closestDist = 9999999;
+
+		for (unsigned int i = 0; i < attractPoints->size(); i++) {
+			float lenSq = (attractPoints->at(i) - pos).lengthSquared();
+			if (lenSq < closestDist) {
+				closestDist = lenSq;
+				closest = i;
+			}
 		}
+
+		//2 - if we have a closest point - lets calcuate the force away from it
+		if (closest != -1) {
+			closestPt = attractPoints->at(closest);
+
+			frc = closestPt - pos;
+
+			//let get the distance and only repel points close to the mouse
+			float dist = frc.length();
+			frc.normalize();
+
+			vel *= drag;
+			if (dist < 150) {//TODO: move hard coded values into GUI
+				vel += -frc * 0.6; //notice the frc is negative //TODO: move hard coded values into GUI
+			}
+			else {
+				//if the particles are not close to us, lets add a little bit of random movement using noise. this is where uniqueVal comes in handy. 			
+				frc.x = ofSignedNoise(uniqueVal, pos.y * 0.01, ofGetElapsedTimef()*0.2);//TODO: move hard coded values into GUI
+				frc.y = ofSignedNoise(uniqueVal, pos.x * 0.01, ofGetElapsedTimef()*0.2);//TODO: move hard coded values into GUI
+				vel += frc * 0.04;//TODO: move hard coded values into GUI
+			}
+		}
+
 	}
 	else if( mode == PARTICLE_MODE_NOISE || attractPoint == NULL || attractPoints == NULL){
 		//lets simulate falling snow 
