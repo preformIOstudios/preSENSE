@@ -129,7 +129,7 @@ void ofApp::draw(){
 	
 	ofSetColor(190);
 	if( currentMode == PARTICLE_MODE_NEAREST_POINTS ){
-		if (attractPoints.size() > 0) {
+		if (attractPoints.size() > 0 && debugging) {
 			for (unsigned int i = 0; i < attractPoints.size(); i++) {
 				ofNoFill();
 				ofDrawCircle(attractPointsWithMovement[i], 10);//TODO: move hard coded values into GUI
