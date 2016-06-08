@@ -47,15 +47,17 @@ void demoParticle::update(){
 
 	//1 - APPLY THE FORCES BASED ON WHICH MODE WE ARE IN 
 	
-	if( mode == PARTICLE_MODE_ATTRACT ){
-		ofPoint attractPt(ofGetMouseX(), ofGetMouseY());
-		frc = attractPt-pos; // we get the attraction force/vector by looking at the mouse pos relative to our pos
+	//if( mode == PARTICLE_MODE_ATTRACT ){
+		//ofPoint attractPt(ofGetMouseX(), ofGetMouseY());
+		//frc = attractPt-pos; // we get the attraction force/vector by looking at the mouse pos relative to our pos
+	if( mode == PARTICLE_MODE_ATTRACT && attractPoint){
+		frc = *attractPoint-pos; // we get the attraction force/vector by looking at the mouse pos relative to our pos
 		frc.normalize(); //by normalizing we disregard how close the particle is to the attraction point 
 		
 		vel *= drag; //apply drag
 		vel += frc * 0.6; //apply force //TODO: move hard coded values into GUI
 	}
-	else if( mode == PARTICLE_MODE_REPEL ){ //TODO: update this to be repelled by attract points
+	else if( mode == PARTICLE_MODE_REPEL && attractPoints ){ //TODO: update this to be repelled by attract points
 		ofPoint attractPt(ofGetMouseX(), ofGetMouseY());
 		frc = attractPt-pos; 
 		
@@ -73,7 +75,7 @@ void demoParticle::update(){
 			vel += frc * 0.04;//TODO: move hard coded values into GUI
 		}
 	}
-	else if( mode == PARTICLE_MODE_NOISE || attractPoint == NULL){
+	else if( mode == PARTICLE_MODE_NOISE || attractPoint == NULL || attractPoints == NULL){
 		//lets simulate falling snow 
 		//the fake wind is meant to add a shift to the particles based on where in x they are
 		//we add pos.y as an arg so to prevent obvious vertical banding around x values - try removing the pos.y * 0.006 to see the banding
