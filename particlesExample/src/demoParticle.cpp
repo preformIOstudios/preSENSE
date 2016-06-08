@@ -117,8 +117,8 @@ void demoParticle::update(){
 		
 				vel *= drag;
 				 
-				//lets also limit our attraction to a certain distance and don't apply if 'f' key is pressed
-				if( dist < 300 && dist > 40 && !ofGetKeyPressed('f') ){//TODO: move hard coded values into GUI
+				//lets also limit our attraction to a certain distance and don't apply if 'n' key is pressed
+				if( dist < 300 && dist > 40 && !ofGetKeyPressed('n') ){//TODO: move hard coded values into GUI
 					vel += frc * 0.003; //TODO: move hard coded values into GUI
 				}else{
 					//if the particles are not close to us, lets add a little bit of random movement using noise. this is where uniqueVal comes in handy. 			

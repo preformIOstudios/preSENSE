@@ -190,7 +190,7 @@ void ofApp::keyPressed(int key){ //TODO: move key presses into GUI
 
 	case '3':
 		currentMode = PARTICLE_MODE_NEAREST_POINTS;
-		currentModeStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'f' to disable force";
+		currentModeStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'n' to disable force";
 		break;
 
 	case '4':
