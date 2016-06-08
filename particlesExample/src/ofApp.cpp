@@ -33,19 +33,20 @@ void ofApp::setup() {
 }
 
 //--------------------------------------------------------------
-void ofApp::resetParticles(){
+void ofApp::resetParticles() {
 
 	//these are the attraction points used in the forth demo 
-	attractPoints.clear();
-	for(int i = 0; i < 4; i++){ //TODO: move hard coded values into GUI
-		attractPoints.push_back( ofPoint( ofMap(i, 0, 4, 100, ofGetWidth()-100) , ofRandom(100, ofGetHeight()-100) ) );
-	}
-	
-	attractPointsWithMovement = attractPoints;
-	
-	for(unsigned int i = 0; i < p.size(); i++){
-		p[i].setMode(currentMode);		
-		p[i].setAttractPoints(&attractPointsWithMovement);;
+	//attractPoints.clear();
+	//attractPoints = hands;
+	//for(int i = 0; i < 4; i++){ //TODO: move hard coded values into GUI
+		//attractPoints.push_back( ofPoint( ofMap(i, 0, 4, 100, ofGetWidth()-100) , ofRandom(100, ofGetHeight()-100) ) );
+	//}
+
+	//attractPointsWithMovement = attractPoints;
+
+	for (unsigned int i = 0; i < p.size(); i++) {
+		p[i].setMode(currentMode);
+		p[i].setAttractPoints(&attractPointsWithMovement);
 		p[i].reset();
 	}	
 }
@@ -60,9 +61,19 @@ void ofApp::update(){
 	//Getting joint positions (skeleton tracking)
 	{
 		auto bodies = kinect.getBodySource()->getBodies();
+		hands.clear();
 		for (auto body : bodies) {
-			for (auto joint : body.joints) {
+			if (body.tracked) {
 				//TODO: now do something with the joints
+
+				// turn hands into attractors / repellants
+				//auto bID = body.bodyId; // TODO: capture instance of a particular body to act as attractor for single attractors
+				
+				hands.push_back(body.joints[JointType_HandTipLeft].getPositionInDepthMap()*depthMapScale); // TODO: figure out projective position getting
+				hands.push_back(body.joints[JointType_HandTipRight].getPositionInDepthMap()*depthMapScale); // TODO: figure out projective position getting
+
+				//for (auto joint : body.joints) {
+				//}
 			}
 		}
 	}
@@ -91,12 +102,21 @@ void ofApp::update(){
 		p[i].setMode(currentMode);
 		p[i].update();
 	}
-	
+
+	attractPoints = hands;
+	if (attractPoints.size() != attractPointsWithMovement.size()) {
+		attractPointsWithMovement.resize(attractPoints.size());
+		attactionHandID = ofRandom(hands.size());
+		resetParticles();
+	}
+
 	//lets add a bit of movement to the attract points
-	for(unsigned int i = 0; i < attractPointsWithMovement.size(); i++){
-		attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
-		attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
-	}	
+	if (attractPoints.size() > 0) {
+		for (unsigned int i = 0; i < attractPointsWithMovement.size(); i++) {
+			attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
+			attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -109,11 +129,13 @@ void ofApp::draw(){
 	
 	ofSetColor(190);
 	if( currentMode == PARTICLE_MODE_NEAREST_POINTS ){
-		for(unsigned int i = 0; i < attractPoints.size(); i++){
-			ofNoFill();
-			ofDrawCircle(attractPointsWithMovement[i], 10);//TODO: move hard coded values into GUI
-			ofFill();
-			ofDrawCircle(attractPointsWithMovement[i], 4);//TODO: move hard coded values into GUI
+		if (attractPoints.size() > 0) {
+			for (unsigned int i = 0; i < attractPoints.size(); i++) {
+				ofNoFill();
+				ofDrawCircle(attractPointsWithMovement[i], 10);//TODO: move hard coded values into GUI
+				ofFill();
+				ofDrawCircle(attractPointsWithMovement[i], 4);//TODO: move hard coded values into GUI
+			}
 		}
 	}
 

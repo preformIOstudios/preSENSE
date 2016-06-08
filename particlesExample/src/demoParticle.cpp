@@ -3,6 +3,7 @@
 //------------------------------------------------------------------
 demoParticle::demoParticle(){
 	attractPoints = NULL;
+	attractPoint = NULL;
 }
 
 //------------------------------------------------------------------
@@ -15,13 +16,16 @@ void demoParticle::setAttractPoints( vector <ofPoint> * attract ){
 	attractPoints = attract;
 }
 
+void demoParticle::setAttractPoint(ofPoint * attractP) {
+	attractPoint = attractP;
+}
 //------------------------------------------------------------------
 void demoParticle::reset(){
 	//the unique val allows us to set properties slightly differently for each particle
 	uniqueVal = ofRandom(-10000, 10000); //TODO: move hard coded values into GUI
 	
-	pos.x = ofRandomWidth(); 
-	pos.y = ofRandomHeight();
+	//pos.x = ofRandomWidth(); 
+	//pos.y = ofRandomHeight();
 	
 	vel.x = ofRandom(-3.9, 3.9); //TODO: move hard coded values into GUI
 	vel.y = ofRandom(-3.9, 3.9); //TODO: move hard coded values into GUI
@@ -51,7 +55,7 @@ void demoParticle::update(){
 		vel *= drag; //apply drag
 		vel += frc * 0.6; //apply force //TODO: move hard coded values into GUI
 	}
-	else if( mode == PARTICLE_MODE_REPEL ){
+	else if( mode == PARTICLE_MODE_REPEL ){ //TODO: update this to be repelled by attract points
 		ofPoint attractPt(ofGetMouseX(), ofGetMouseY());
 		frc = attractPt-pos; 
 		
@@ -139,18 +143,18 @@ void demoParticle::update(){
 	//we could also pass in bounds to check - or alternatively do this at the ofApp level
 	if( pos.x > ofGetWidth() ){
 		pos.x = ofGetWidth();
-		vel.x *= -1.0;//TODO: move hard coded values into GUI
+		vel.x *= -1.0;
 	}else if( pos.x < 0 ){
 		pos.x = 0;
-		vel.x *= -1.0;//TODO: move hard coded values into GUI
+		vel.x *= -1.0;
 	}
 	if( pos.y > ofGetHeight() ){
 		pos.y = ofGetHeight();
-		vel.y *= -1.0;//TODO: move hard coded values into GUI
+		vel.y *= -1.0;
 	}
 	else if( pos.y < 0 ){
 		pos.y = 0;
-		vel.y *= -1.0;//TODO: move hard coded values into GUI
+		vel.y *= -1.0;
 	}	
 		
 }
