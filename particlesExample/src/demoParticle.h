@@ -8,13 +8,14 @@ enum particleMode{
 	PARTICLE_MODE_NOISE
 };
 
-class demoParticle{	
+class demoParticle{
 
 	public:
 		demoParticle();
 		
 		void setMode(particleMode newMode);	
 		void setAttractPoints( vector <ofPoint> * attract );
+		void setAttractPoint(ofPoint * attractP);
 
 		void reset();
 		void update();
@@ -31,4 +32,5 @@ class demoParticle{
 		particleMode mode;
 		
 		vector <ofPoint> * attractPoints; 
+		ofPoint * attractPoint;
 };

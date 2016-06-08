@@ -1,9 +1,9 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-void ofApp::setup(){
+void ofApp::setup() {
 	ofSetVerticalSync(true);
-	
+
 	int num = 1500; //TODO: move hard coded values into GUI
 	p.assign(num, demoParticle());
 	currentMode = PARTICLE_MODE_ATTRACT;//TODO: move hard coded values into GUI
@@ -125,19 +125,19 @@ void ofApp::draw(){
 	ofEnableBlendMode(OF_BLENDMODE_SCREEN);//TODO: move hard coded values into GUI
 	ofSetColor(127);//TODO: move hard coded values into GUI
 	if (debugging) {//TODO: move hard coded values into GUI
-		kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 
+		//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 																		   // Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
-		float colorHeight = previewWidth * (kinect.getColorSource()->getHeight() / kinect.getColorSource()->getWidth());
-		float colorTop = (previewHeight - colorHeight) / 2.0;
+		//float colorHeight = previewWidth * (kinect.getColorSource()->getHeight() / kinect.getColorSource()->getWidth());
+		//float colorTop = (previewHeight - colorHeight) / 2.0;
 
-		kinect.getColorSource()->draw(previewWidth, 0 + colorTop, previewWidth, colorHeight);
-		kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
+		//kinect.getColorSource()->draw(previewWidth, 0 + colorTop, previewWidth, colorHeight);
+		//kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
 
-		kinect.getInfraredSource()->draw(0, previewHeight, previewWidth, previewHeight);
+		//kinect.getInfraredSource()->draw(0, previewHeight, previewWidth, previewHeight);
 
-		kinect.getBodyIndexSource()->draw(previewWidth, previewHeight, previewWidth, previewHeight);
-		kinect.getBodySource()->drawProjected(previewWidth, previewHeight, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
+		kinect.getBodyIndexSource()->draw(0, 0, previewWidth, previewHeight);
+		kinect.getBodySource()->drawProjected(0, 0, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
 
 		//TODO: add debug instrcutions gui & text
 		// change color settings

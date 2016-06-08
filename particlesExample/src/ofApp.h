@@ -29,6 +29,8 @@ class ofApp : public ofBaseApp{
 		string currentModeStr; 
 
 		vector <demoParticle> p;
+		vector <ofPoint> hands;
+		int attactionHandID;
 		vector <ofPoint> attractPoints;
 		vector <ofPoint> attractPointsWithMovement;
 
