@@ -47,6 +47,11 @@ void ofApp::resetParticles() {
 	for (unsigned int i = 0; i < p.size(); i++) {
 		p[i].setMode(currentMode);
 		p[i].setAttractPoints(&attractPointsWithMovement);
+		if (attractPointsWithMovement.size() > 0) {
+			p[i].setAttractPoint(&attractPointsWithMovement[attactionHandID]);
+		} else {
+			p[i].setAttractPoint(NULL);
+		}
 		p[i].reset();
 	}	
 }

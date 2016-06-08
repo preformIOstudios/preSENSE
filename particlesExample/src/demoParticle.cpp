@@ -73,7 +73,7 @@ void demoParticle::update(){
 			vel += frc * 0.04;//TODO: move hard coded values into GUI
 		}
 	}
-	else if( mode == PARTICLE_MODE_NOISE ){
+	else if( mode == PARTICLE_MODE_NOISE || attractPoint == NULL){
 		//lets simulate falling snow 
 		//the fake wind is meant to add a shift to the particles based on where in x they are
 		//we add pos.y as an arg so to prevent obvious vertical banding around x values - try removing the pos.y * 0.006 to see the banding
