@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "demoParticle.h"
 #include "ofxKinectForWindows2.h"
+#include "ofxUI.h"
 
 
 class ofApp : public ofBaseApp{
@@ -24,6 +25,9 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		void guiEvent(ofxUIEventArgs &e);
+		ofxUISuperCanvas *gui;
 		
 		particleMode currentMode;
 		string currentModeStr; 

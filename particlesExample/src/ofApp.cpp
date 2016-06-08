@@ -30,6 +30,120 @@ void ofApp::setup() {
 	// change color settings
 	// set mode to debugging
 
+	/////////////////////
+	// Initialize GUIS //
+	/////////////////////
+	//
+	//------------
+	// Main GUI --
+	//////////////
+	gui = new ofxUISuperCanvas("preSENCE part");
+	ofAddListener(gui->newGUIEvent, this, &ofApp::guiEvent);
+	gui->addSpacer();
+	gui->addTextArea("text", "'h' to hide this panel", OFX_UI_FONT_SMALL);
+	//    gui -> addLabel("text", "'h' to hide this panel");
+	gui->addSpacer();
+	//
+	// radio list and key bindings to select different looks
+	gui->addLabel("looks: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
+	vector<string> looksList; 
+	for (int i = 0; i < 4; i++) {
+		looksList.push_back(ofToString(i + 1));
+	}
+	ofxUIRadio *radioLook = gui->addRadio("look", looksList, OFX_UI_ORIENTATION_HORIZONTAL);
+	vector< ofxUIToggle*> toggles = radioLook->getToggles();
+	for (int i = 0; i < 4; i++) {
+		toggles[i]->bindToKey(ofToChar( ofToString(i + 1) ));
+	}
+	gui->addTextArea("text", "press '1', '2', etc. to switch between different looks", OFX_UI_FONT_SMALL);
+	gui->addSpacer();
+	//
+	// fullscreen toggle
+	ofxUIToggle *toggleFullScreen = gui->addToggle("fullscreen", false);
+	toggleFullScreen->bindToKey('f');
+	toggleFullScreen->bindToKey('F');
+	//
+	// hard reset particles
+	ofxUIButton *buttonReset = gui->addButton("hardreset", false);
+	buttonReset->bindToKey('r');
+	buttonReset->bindToKey('R');
+	//
+	// debugging toggle
+	ofxUIToggle* toggleDebugging = gui->addToggle("debugging", &debugging);
+	toggleDebugging->bindToKey('d');
+	toggleDebugging->bindToKey('D');
+	gui->addSpacer();
+	//
+	// save Settings
+	gui->addLabelButton("save main settings", false);
+	gui->autoSizeToFitWidgets();
+
+}
+
+//--------------------------------------------------------------
+void ofApp::guiEvent(ofxUIEventArgs &e) {
+	//*
+	bool noCallbackForWidget = false;
+	string nameStr = e.widget->getName();
+	int kind = e.widget->getKind();
+	if (nameStr == "fullscreen") {
+		ofSetFullscreen(((ofxUIToggle *)e.widget)->getValue());
+	}
+	else if (nameStr == "save main settings") {
+		gui->saveSettings("guiSettings_" + ofToString(currentMode) + ".xml");
+	}
+	else if (nameStr == "look" || nameStr == "1" || nameStr == "2" || nameStr == "3" || nameStr == "4") {
+		ofxUIRadio *radioLook;
+		if (kind == OFX_UI_WIDGET_RADIO) radioLook = (ofxUIRadio *)e.widget;
+		else radioLook = (ofxUIRadio *)e.widget->getParent();
+		switch (radioLook->getValue()) {
+
+		case 0: // 1
+			currentMode = PARTICLE_MODE_ATTRACT;
+			currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse";
+			break;
+
+		case 1: // 2
+			currentMode = PARTICLE_MODE_REPEL;
+			currentModeStr = "2 - PARTICLE_MODE_REPEL: repels from mouse";
+			break;
+
+		case 2: // 3
+			currentMode = PARTICLE_MODE_NEAREST_POINTS;
+			currentModeStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'n' to disable force";
+			break;
+
+		case 3: // 4
+			currentMode = PARTICLE_MODE_NOISE;
+			currentModeStr = "4 - PARTICLE_MODE_NOISE: snow particle simulation";
+			resetParticles();
+			break;
+
+		default:
+			break;
+		}
+
+
+	}
+	else if (nameStr == "hardreset") { // TODO: Fix this. Doesn't seem to work as expected
+		//int num = p.size();
+		//p.clear();
+		//p.assign(num, demoParticle());
+	}
+	else {
+		// default
+		noCallbackForWidget = true;
+	}
+
+	// debug
+	if (ofGetLogLevel() == OF_LOG_VERBOSE) {
+		if (noCallbackForWidget) {
+			cout << "[verbose] ofApp::guiEvent(ofxUIEventArgs &e) -- unset callback for gui element name = " << nameStr << endl;
+		}
+		else {
+			cout << "[verbose] ofApp::guiEvent(ofxUIEventArgs &e) -- gui element name = " << nameStr << endl;
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -178,40 +292,8 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){ //TODO: move key presses into GUI
 	switch (key) {
 
-	case '1':
-		currentMode = PARTICLE_MODE_ATTRACT;
-		currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse";
-		break;
-
-	case '2':
-		currentMode = PARTICLE_MODE_REPEL;
-		currentModeStr = "2 - PARTICLE_MODE_REPEL: repels from mouse";
-		break;
-
-	case '3':
-		currentMode = PARTICLE_MODE_NEAREST_POINTS;
-		currentModeStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'n' to disable force";
-		break;
-
-	case '4':
-		currentMode = PARTICLE_MODE_NOISE;
-		currentModeStr = "4 - PARTICLE_MODE_NOISE: snow particle simulation";
-		resetParticles();
-		break;
-
 	case ' ':
 		resetParticles();
-		break;
-
-	case 'd':
-	case 'D':
-		//hitting space key swaps the camera view
-		debugging = !debugging;
-		break;
-
-	case 'f':
-	case 'F':
-		ofToggleFullscreen();
 		break;
 
 	default :
