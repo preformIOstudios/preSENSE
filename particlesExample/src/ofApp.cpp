@@ -74,10 +74,10 @@ void ofApp::setup() {
 	gui->addSpacer();
 	//
 	// Background Gradient Color
-	gui->addTextArea("text", "background color");
-	gui->addSlider("red", 0.0, 255.0, &bgGradRed);
-	gui->addSlider("green", 0.0, 255.0, &bgGradGreen);
-	gui->addSlider("blue", 0.0, 255.0, &bgGradBlue);
+	gui->addTextArea("text", "gradient color");
+	gui->addSlider("gradRed", 0.0, 255.0, &bgGradRed);
+	gui->addSlider("gradGreen", 0.0, 255.0, &bgGradGreen);
+	gui->addSlider("gradBlue", 0.0, 255.0, &bgGradBlue);
 	gui->addSpacer();
 	//
 	// fullscreen toggle
