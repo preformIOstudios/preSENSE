@@ -96,11 +96,22 @@ void ofApp::setup(){
 	toggleFullScreen->bindToKey('f');
 	toggleFullScreen->bindToKey('F');
 	//
+	//
+	// draw index toggle
+	ofxUIToggle* toggleIndex = gui->addToggle("body index", &drawBodyIndex);
+	toggleIndex->bindToKey('i');
+	toggleIndex->bindToKey('I');
+	//
+	// draw bones toggle
+	ofxUIToggle* toggleBones = gui->addToggle("bones", &drawBones);
+	toggleBones->bindToKey('b');
+	toggleBones->bindToKey('B');
+	gui->addSpacer();
+	//
 	// debugging toggle
 	ofxUIToggle* toggleDebugging = gui->addToggle("debugging", &debugging);
 	toggleDebugging->bindToKey('d');
 	toggleDebugging->bindToKey('D');
-	gui->addSpacer();
 	//
 	// hard reset
 	ofxUIButton *buttonReset = gui->addButton("hardreset", false);
@@ -448,11 +459,16 @@ void ofApp::draw(){
 		//kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
 
 		//kinect.getInfraredSource()->draw(0, 0, previewWidth, previewHeight);
+	}
+	if (debugging || drawBodyIndex) {
 		ofSetColor(indexColor);
 		kinect.getBodyIndexSource()->draw(0, 0, previewWidth, previewHeight);
+	}
+
+	if (debugging || drawBones) {
 		ofSetColor(skelColor);
 		kinect.getBodySource()->drawProjected(0, 0, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
-	}
+	}	
 	ofPopStyle();
 
 }
