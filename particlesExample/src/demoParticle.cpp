@@ -20,12 +20,14 @@ void demoParticle::setAttractPoint(ofPoint * attractP) {
 	attractPoint = attractP;
 }
 //------------------------------------------------------------------
-void demoParticle::reset(){
+void demoParticle::reset(bool posReset){
 	//the unique val allows us to set properties slightly differently for each particle
 	uniqueVal = ofRandom(-10000, 10000); //TODO: move hard coded values into GUI
 	
-	//pos.x = ofRandomWidth(); 
-	//pos.y = ofRandomHeight();
+	if (posReset) {
+		pos.x = ofRandomWidth(); 
+		pos.y = ofRandomHeight();
+	}
 	
 	vel.x = ofRandom(-3.9, 3.9); //TODO: move hard coded values into GUI
 	vel.y = ofRandom(-3.9, 3.9); //TODO: move hard coded values into GUI

@@ -6,11 +6,11 @@ void ofApp::setup() {
 
 	int num = 1500; //TODO: move hard coded values into GUI
 	p.assign(num, demoParticle());
-	currentMode = PARTICLE_MODE_ATTRACT;//TODO: move hard coded values into GUI
+	currentMode = PARTICLE_MODE_NOISE;//TODO: move hard coded values into GUI
 
 	currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse"; //TODO: move hard coded values into GUI
 
-	resetParticles();
+	resetParticles(true);
 
 	//initialize kinect object
 	//TODO: only initialize necessary sources
@@ -116,7 +116,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 		case 3: // 4
 			currentMode = PARTICLE_MODE_NOISE;
 			currentModeStr = "4 - PARTICLE_MODE_NOISE: snow particle simulation";
-			resetParticles();
+			resetParticles(false);
 			break;
 
 		default:
@@ -147,7 +147,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 }
 
 //--------------------------------------------------------------
-void ofApp::resetParticles() {
+void ofApp::resetParticles(bool posReset = false) {
 
 	//these are the attraction points used in the forth demo 
 	//attractPoints.clear();
@@ -155,7 +155,6 @@ void ofApp::resetParticles() {
 	//for(int i = 0; i < 4; i++){ //TODO: move hard coded values into GUI
 		//attractPoints.push_back( ofPoint( ofMap(i, 0, 4, 100, ofGetWidth()-100) , ofRandom(100, ofGetHeight()-100) ) );
 	//}
-
 	//attractPointsWithMovement = attractPoints;
 
 	for (unsigned int i = 0; i < p.size(); i++) {
@@ -166,7 +165,7 @@ void ofApp::resetParticles() {
 		} else {
 			p[i].setAttractPoint(NULL);
 		}
-		p[i].reset();
+		p[i].reset(posReset);
 	}	
 }
 

@@ -12,7 +12,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
-		void resetParticles();
+		void resetParticles(bool posReset);
 
 		void keyPressed  (int key);
 		void keyReleased(int key);
