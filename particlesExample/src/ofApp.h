@@ -28,6 +28,7 @@ class ofApp : public ofBaseApp{
 
 		void guiEvent(ofxUIEventArgs &e);
 		ofxUISuperCanvas *gui;
+		bool stateChanged;
 		
 		particleMode currentMode;
 		string currentModeStr; 
@@ -50,5 +51,6 @@ private:
 	float previewScaleW;
 	float previewScaleH;
 	ofVec3f depthMapScale;
+	int drawFrameRate;
 
 };

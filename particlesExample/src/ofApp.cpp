@@ -33,6 +33,7 @@ void ofApp::setup() {
 	/////////////////////
 	// Initialize GUIS //
 	/////////////////////
+	stateChanged = true;
 	//
 	//------------
 	// Main GUI --
@@ -58,21 +59,28 @@ void ofApp::setup() {
 	gui->addTextArea("text", "press '1', '2', etc. to switch between different looks", OFX_UI_FONT_SMALL);
 	gui->addSpacer();
 	//
+	// FPS
+	gui->addFPSSlider("fps");
+	gui->addSpacer();
+	gui->addTextArea("text", "'+' or '-' to change frame rate");
+	gui->addIntSlider("set fps", 1, 60, &drawFrameRate);
+	gui->addSpacer();
+	//
 	// fullscreen toggle
 	ofxUIToggle *toggleFullScreen = gui->addToggle("fullscreen", false);
 	toggleFullScreen->bindToKey('f');
 	toggleFullScreen->bindToKey('F');
-	//
-	// hard reset particles
-	ofxUIButton *buttonReset = gui->addButton("hardreset", false);
-	buttonReset->bindToKey('r');
-	buttonReset->bindToKey('R');
 	//
 	// debugging toggle
 	ofxUIToggle* toggleDebugging = gui->addToggle("debugging", &debugging);
 	toggleDebugging->bindToKey('d');
 	toggleDebugging->bindToKey('D');
 	gui->addSpacer();
+	//
+	// hard reset particles
+	ofxUIButton *buttonReset = gui->addButton("hardreset", false);
+	buttonReset->bindToKey('r');
+	buttonReset->bindToKey('R');
 	//
 	// save Settings
 	gui->addLabelButton("save main settings", false);
@@ -123,7 +131,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 			break;
 		}
 
-
+		stateChanged = true;
 	}
 	else if (nameStr == "hardreset") {
 		resetParticles(true);
@@ -169,6 +177,16 @@ void ofApp::resetParticles(bool posReset = false) {
 
 //--------------------------------------------------------------
 void ofApp::update(){
+
+	if (stateChanged) {
+		gui->loadSettings("guiSettings_" + ofToString(currentMode) + ".xml");
+		stateChanged = false;
+	}
+
+	// GUI
+	/////////
+	drawFrameRate = ofGetFrameRate();
+
 	/////////////////
 	// Kinect
 	///////////////////
@@ -289,8 +307,9 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){ //TODO: move key presses into GUI
 	switch (key) {
 
-	case ' ':
-		resetParticles();
+	case 'h':
+	case 'H':
+		gui->toggleVisible();
 		break;
 
 	default :
