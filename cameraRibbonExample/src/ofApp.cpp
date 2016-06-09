@@ -44,6 +44,7 @@ void ofApp::setup(){
 	/////////////////////
 	// Initialize GUIS //
 	/////////////////////
+	currentLook = 1;
 	lookChanged = true;
 	//
 	//------------
@@ -270,55 +271,59 @@ void ofApp::draw(){
         camera.begin();
     }
 
-	ofSetColor(0);//TODO: put this into the GUI
-	//do the same thing from the first example...
-    ofMesh mesh;
-	mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-	for(unsigned int i = 1; i < points.size(); i++){
+	if (debugging) {
 
-		//find this point and the next point
-		ofVec3f thisPoint = points[i-1];
-		ofVec3f nextPoint = points[i];
+		ofSetColor(0);//TODO: put this into the GUI
+		//do the same thing from the first example...
+		ofMesh mesh;
+		mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+		for (unsigned int i = 1; i < points.size(); i++) {
 
-		//get the direction from one to the next.
-		//the ribbon should fan out from this direction
-		ofVec3f direction = (nextPoint - thisPoint);
+			//find this point and the next point
+			ofVec3f thisPoint = points[i - 1];
+			ofVec3f nextPoint = points[i];
 
-		//get the distance from one point to the next
-		float distance = direction.length();
+			//get the direction from one to the next.
+			//the ribbon should fan out from this direction
+			ofVec3f direction = (nextPoint - thisPoint);
 
-		//get the normalized direction. normalized vectors always have a length of one
-		//and are really useful for representing directions as opposed to something with length
-		ofVec3f unitDirection = direction.getNormalized();
+			//get the distance from one point to the next
+			float distance = direction.length();
 
-		//find both directions to the left and to the right
-		ofVec3f toTheLeft = unitDirection.getRotated(-90, ofVec3f(0,0,1));
-		ofVec3f toTheRight = unitDirection.getRotated(90, ofVec3f(0,0,1));
+			//get the normalized direction. normalized vectors always have a length of one
+			//and are really useful for representing directions as opposed to something with length
+			ofVec3f unitDirection = direction.getNormalized();
 
-		//use the map function to determine the distance.
-		//the longer the distance, the narrower the line.
-		//this makes it look a bit like brush strokes
-		float thickness = ofMap(distance, 0, 60, 20, 2, true);//TODO: put these constants into the GUI
-															  //TODO: have tail shrink towards end so it disappears
+			//find both directions to the left and to the right
+			ofVec3f toTheLeft = unitDirection.getRotated(-90, ofVec3f(0, 0, 1));
+			ofVec3f toTheRight = unitDirection.getRotated(90, ofVec3f(0, 0, 1));
 
-		//calculate the points to the left and to the right
-		//by extending the current point in the direction of left/right by the length
-		ofVec3f leftPoint = thisPoint+toTheLeft*thickness;
-		ofVec3f rightPoint = thisPoint+toTheRight*thickness;
+			//use the map function to determine the distance.
+			//the longer the distance, the narrower the line.
+			//this makes it look a bit like brush strokes
+			float thickness = ofMap(distance, 0, 60, 20, 2, true);//TODO: put these constants into the GUI
+																  //TODO: have tail shrink towards end so it disappears
 
-		//add these points to the triangle strip
-		mesh.addVertex(ofVec3f(leftPoint.x, leftPoint.y, leftPoint.z));
-		mesh.addVertex(ofVec3f(rightPoint.x, rightPoint.y, rightPoint.z));
+			//calculate the points to the left and to the right
+			//by extending the current point in the direction of left/right by the length
+			ofVec3f leftPoint = thisPoint + toTheLeft*thickness;
+			ofVec3f rightPoint = thisPoint + toTheRight*thickness;
+
+			//add these points to the triangle strip
+			mesh.addVertex(ofVec3f(leftPoint.x, leftPoint.y, leftPoint.z));
+			mesh.addVertex(ofVec3f(rightPoint.x, rightPoint.y, rightPoint.z));
+		}
+
+		//end the shape
+		mesh.draw();
 	}
 
-	//end the shape
-	mesh.draw();
-
+	// TODO: sort so foremost bodies appear foremost
 	// draw ribbons
-	ofSetColor(0);//TODO: put this into the GUI
 	for (unsigned int bodyIDX = 0; bodyIDX < ribbons.size(); bodyIDX++) {
+		ofSetColor(bodyIDX * 32);//TODO: put this into the GUI
 		for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyIDX].size(); boneIDX++) {
-			ofMesh meshRibbon;
+			ofMesh meshRibbon;	
 			meshRibbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
 			for (unsigned int point = 0; point < ribbons[bodyIDX][boneIDX].size(); point++) {
 				//add each joint to the triangle strip
@@ -328,11 +333,6 @@ void ofApp::draw(){
 			//end the shape
 			meshRibbon.draw();
 
-			if (debugging) {
-				// debug joints string
-				ofSetColor(230);
-				ofDrawBitmapString("\n\nribbons[" + ofToString(bodyIDX) + "][" + ofToString(boneIDX) + "] = " + ofToString(ribbons[bodyIDX][boneIDX]), 10, 20 + 30 * (bodyIDX + 1) + 10 * (boneIDX + 1));
-			}
 		}
 	}
 
@@ -454,7 +454,7 @@ void ofApp::windowResized(int w, int h){
 	previewHeight = ofGetWindowHeight() * previewScaleH;
 	float depthMapScaleW = previewWidth / 512.0f;
 	float depthMapScaleH = previewHeight / 424.0f;
-	depthMapScale = ofVec3f(depthMapScaleH, depthMapScaleW, (depthMapScaleH + depthMapScaleW)/2.0f);
+	depthMapScale = ofVec3f(depthMapScaleW, depthMapScaleH, (depthMapScaleH + depthMapScaleW)/2.0f);
 }
 
 //--------------------------------------------------------------
