@@ -340,11 +340,6 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackgroundGradient(bgGradient, bgColor);
-
-	ofSetColor(fgColor);
-	for(unsigned int i = 0; i < p.size(); i++){
-		p[i].draw();
-	}
 	
 	ofSetColor(190);
 	if( currentMode == PARTICLE_MODE_NEAREST_POINTS ){
@@ -391,6 +386,10 @@ void ofApp::draw(){
 	}
 	ofPopStyle();
 
+	ofSetColor(fgColor);
+	for (unsigned int i = 0; i < p.size(); i++) {
+		p[i].draw();
+	}
 }
 
 //--------------------------------------------------------------
