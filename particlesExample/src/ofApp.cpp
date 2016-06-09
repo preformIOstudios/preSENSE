@@ -33,7 +33,7 @@ void ofApp::setup() {
 	/////////////////////
 	// Initialize GUIS //
 	/////////////////////
-	stateChanged = true;
+	lookChanged = true;
 	//
 	//------------
 	// Main GUI --
@@ -131,7 +131,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 			break;
 		}
 
-		stateChanged = true;
+		lookChanged = true;
 	}
 	else if (nameStr == "hardreset") {
 		resetParticles(true);
@@ -178,9 +178,9 @@ void ofApp::resetParticles(bool posReset = false) {
 //--------------------------------------------------------------
 void ofApp::update(){
 
-	if (stateChanged) {
+	if (lookChanged) {
 		gui->loadSettings("guiSettings_" + ofToString(currentMode) + ".xml");
-		stateChanged = false;
+		lookChanged = false;
 	}
 
 	// GUI

@@ -28,7 +28,7 @@ class ofApp : public ofBaseApp{
 
 		void guiEvent(ofxUIEventArgs &e);
 		ofxUISuperCanvas *gui;
-		bool stateChanged;
+		bool lookChanged;
 		
 		particleMode currentMode;
 		string currentModeStr; 
