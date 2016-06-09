@@ -225,7 +225,7 @@ void ofApp::update(){
 		vector <float> bodyDepths;
 		for (auto body : bodies) {
 			if (body.tracked) {
-				bodyDepths.push_back( body.joints[JointType_SpineBase].getPositionInWorld().z );
+				bodyDepths.push_back(body.joints[JointType_SpineBase].getPositionInWorld().z);
 				ribbons[bodyIDX].resize(boneAtlas.size());
 				int boneIDX = 0; // each bone gets a ribbon (for now)
 				for (auto bone : boneAtlas) {
@@ -256,11 +256,12 @@ void ofApp::update(){
 				}
 			} else {
 				ribbons[bodyIDX].resize(0);
+				bodyDepths.push_back(-1);
 			}
 			bodyIDX += 1;
 		}
-		cout << "ofApp :: update () -- bodyDepthOrder = " + ofToString(bodyDepthOrder) << endl;
-		cout << "ofApp :: update () -- bodyDepths = " + ofToString(bodyDepths) << endl;
+		//cout << "ofApp :: update () -- bodyDepthOrder = " + ofToString(bodyDepthOrder) << endl;
+		//cout << "ofApp :: update () -- bodyDepths = " + ofToString(bodyDepths) << endl;
 		// TODO: get / create a depth-sorted version of this list
 		bodyDepthOrder.clear();
 		for (int i = 0; i < bodyDepths.size(); i++) {
@@ -280,7 +281,7 @@ void ofApp::update(){
 				}
 			}
 		}
-		cout << "ofApp :: update () -- bodyDepthOrder (sorted) = " + ofToString(bodyDepthOrder) << endl;
+		//cout << "ofApp :: update () -- bodyDepthOrder (sorted) = " + ofToString(bodyDepthOrder) << endl;
 	}
 }
 
@@ -344,7 +345,7 @@ void ofApp::draw(){
 	// TODO: sort so foremost bodies appear foremost
 	// draw ribbons
 	for (unsigned int bodyIDX = 0; bodyIDX < bodyDepthOrder.size(); bodyIDX++) {
-		ofSetColor(bodyIDX * 32);//TODO: put this into the GUI
+		ofSetColor((bodyDepthOrder.size() -bodyIDX) * 32);//TODO: put this into the GUI
 		for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyDepthOrder[bodyIDX]].size(); boneIDX++) {
 			ofMesh meshRibbon;	
 			meshRibbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
