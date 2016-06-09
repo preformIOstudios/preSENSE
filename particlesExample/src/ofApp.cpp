@@ -125,10 +125,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 
 	}
-	else if (nameStr == "hardreset") { // TODO: Fix this. Doesn't seem to work as expected
-		//int num = p.size();
-		//p.clear();
-		//p.assign(num, demoParticle());
+	else if (nameStr == "hardreset") {
+		resetParticles(true);
 	}
 	else {
 		// default

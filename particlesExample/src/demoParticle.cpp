@@ -52,7 +52,7 @@ void demoParticle::update(){
 	//if( mode == PARTICLE_MODE_ATTRACT ){
 		//ofPoint attractPt(ofGetMouseX(), ofGetMouseY());
 		//frc = attractPt-pos; // we get the attraction force/vector by looking at the mouse pos relative to our pos
-	if( mode == PARTICLE_MODE_ATTRACT && attractPoint){
+	if( mode == PARTICLE_MODE_ATTRACT && attractPoints){
 		frc = *attractPoint-pos; // we get the attraction force/vector by looking at the mouse pos relative to our pos
 		frc.normalize(); //by normalizing we disregard how close the particle is to the attraction point 
 		
