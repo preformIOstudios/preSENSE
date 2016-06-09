@@ -69,5 +69,7 @@ private:
 	float previewScaleH;
 	ofVec3f depthMapScale;
 	int drawFrameRate;
+	ofColor bgColor;
+	float bgRed, bgGreen, bgBlue;
 
 };

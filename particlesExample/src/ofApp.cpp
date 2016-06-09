@@ -66,6 +66,20 @@ void ofApp::setup() {
 	gui->addIntSlider("set fps", 1, 60, &drawFrameRate);
 	gui->addSpacer();
 	//
+	// Background Color
+	gui->addTextArea("text", "background color");
+	gui->addSlider("red", 0.0, 255.0, &bgRed);
+	gui->addSlider("green", 0.0, 255.0, &bgGreen);
+	gui->addSlider("blue", 0.0, 255.0, &bgBlue);
+	gui->addSpacer();
+	//
+	// Background Gradient Color
+	gui->addTextArea("text", "background color");
+	gui->addSlider("red", 0.0, 255.0, &bgGradRed);
+	gui->addSlider("green", 0.0, 255.0, &bgGradGreen);
+	gui->addSlider("blue", 0.0, 255.0, &bgGradBlue);
+	gui->addSpacer();
+	//
 	// fullscreen toggle
 	ofxUIToggle *toggleFullScreen = gui->addToggle("fullscreen", false);
 	toggleFullScreen->bindToKey('f');
@@ -178,6 +192,9 @@ void ofApp::resetParticles(bool posReset = false) {
 //--------------------------------------------------------------
 void ofApp::update(){
 
+	bgColor = ofColor(bgRed, bgGreen, bgBlue);
+	bgGradient = ofColor(bgGradRed, bgGradGreen, bgGradBlue);
+
 	if (lookChanged) {
 		gui->loadSettings("guiSettings_" + ofToString(currentMode) + ".xml");
 		lookChanged = false;
@@ -255,7 +272,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackgroundGradient(ofColor(60,60,60), ofColor(10,10,10));//TODO: move hard coded values into GUI
+    ofBackgroundGradient(bgGradient, bgColor);
 
 	for(unsigned int i = 0; i < p.size(); i++){
 		p[i].draw();
@@ -358,7 +375,7 @@ void ofApp::windowResized(int w, int h){
 	previewHeight = ofGetWindowHeight() * previewScaleH;
 	float depthMapScaleW = previewWidth / 512.0f;
 	float depthMapScaleH = previewHeight / 424.0f;
-	depthMapScale = ofVec3f(depthMapScaleH, depthMapScaleW, (depthMapScaleH + depthMapScaleW) / 2.0f);
+	depthMapScale = ofVec3f(depthMapScaleW, depthMapScaleH, (depthMapScaleH + depthMapScaleW) / 2.0f);
 }
 
 //--------------------------------------------------------------

@@ -17,7 +17,6 @@ void ofApp::setup(){
 	//just set up the openFrameworks stuff
     ofSetFrameRate(60);//TODO: put this into the GUI
     ofSetVerticalSync(true);
-    ofBackground(255);//TODO: put this into the GUI
 
 	//initialize the variable so it's off at the beginning
     usecamera = false;
@@ -76,6 +75,13 @@ void ofApp::setup(){
 	gui->addSpacer();
 	gui->addTextArea("text", "'+' or '-' to change frame rate");
 	gui->addIntSlider("set fps", 1, 60, &drawFrameRate);
+	gui->addSpacer();
+	//
+	// Background Color
+	gui->addTextArea("text", "background color");
+	gui->addSlider("red", 0.0, 255.0, &bgRed);
+	gui->addSlider("green", 0.0, 255.0, &bgGreen);
+	gui->addSlider("blue", 0.0, 255.0, &bgBlue);
 	gui->addSpacer();
 	//
 	// fullscreen toggle
@@ -166,6 +172,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 //--------------------------------------------------------------
 void ofApp::update(){
+	bgColor = ofColor(bgRed, bgGreen, bgBlue);
+
 	// GUI load settings when state changes
 	if (lookChanged) {
 		gui->loadSettings("guiSettings_" + ofToString(currentLook) + ".xml");
@@ -287,7 +295,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
+	ofBackground(bgColor);
 
 	//if we're using the camera, start it.
 	//everything that you draw between begin()/end() shows up from the view of the camera
@@ -356,10 +364,8 @@ void ofApp::draw(){
 
 			//end the shape
 			meshRibbon.draw();
-
 		}
 	}
-
 
 	//if we're using the camera, take it away
     if(usecamera){
