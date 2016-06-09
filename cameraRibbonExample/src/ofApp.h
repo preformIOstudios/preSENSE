@@ -44,6 +44,7 @@ class ofApp : public ofBaseApp{
     vector<ofVec3f> points;
 	vector < vector < vector <ofVec3f> > > ribbons;
 	int pointsMax;
+
     //this keeps track of the center of all the points
     ofVec3f center;
     
@@ -55,6 +56,8 @@ class ofApp : public ofBaseApp{
 
 	//kinect device reference
 	ofxKFW2::Device kinect;
+	vector <int> bodyDepthOrder;
+
 
 private:
 

@@ -202,6 +202,7 @@ void ofApp::update(){
 	kinect.update();
 
 	//Getting joint positions (skeleton tracking)
+	/*
 	{
 		auto bodies = kinect.getBodySource()->getBodies();
 		for (auto body : bodies) {
@@ -210,7 +211,8 @@ void ofApp::update(){
 			}
 		}
 	}
-
+	//*/
+	//
 	//Getting bones (connected joints)
 	{
 		// Note that for this we need a reference of which joints are connected to each other.
@@ -220,8 +222,10 @@ void ofApp::update(){
 
 		ribbons.resize(bodies.size());
 		int bodyIDX = 0;
+		vector <float> bodyDepths;
 		for (auto body : bodies) {
 			if (body.tracked) {
+				bodyDepths.push_back( body.joints[JointType_SpineBase].getPositionInWorld().z );
 				ribbons[bodyIDX].resize(boneAtlas.size());
 				int boneIDX = 0; // each bone gets a ribbon (for now)
 				for (auto bone : boneAtlas) {
@@ -236,9 +240,7 @@ void ofApp::update(){
 					firstJPos *= depthMapScale;
 					secondJPos *= depthMapScale;
 
-
-
-					//TODO: now do something with the joints
+					//store joint positions for ribbon drawing later on
 					if (ribbons[bodyIDX][boneIDX].size() <= pointsMax -2) {
 						ribbons[bodyIDX][boneIDX].push_back(firstJPos);
 						ribbons[bodyIDX][boneIDX].push_back(secondJPos);
@@ -249,7 +251,6 @@ void ofApp::update(){
 						}
 						ribbons[bodyIDX][boneIDX][pointsMax - 2] = firstJPos;
 						ribbons[bodyIDX][boneIDX][pointsMax - 1] = secondJPos;
-
 					}
 					boneIDX += 1;
 				}
@@ -258,6 +259,28 @@ void ofApp::update(){
 			}
 			bodyIDX += 1;
 		}
+		cout << "ofApp :: update () -- bodyDepthOrder = " + ofToString(bodyDepthOrder) << endl;
+		cout << "ofApp :: update () -- bodyDepths = " + ofToString(bodyDepths) << endl;
+		// TODO: get / create a depth-sorted version of this list
+		bodyDepthOrder.clear();
+		for (int i = 0; i < bodyDepths.size(); i++) {
+			float depth = bodyDepths[i];
+			if (bodyDepthOrder.size() == 0) {
+				bodyDepthOrder.push_back(i);
+			} else if (depth > bodyDepthOrder.back()) {
+				bodyDepthOrder.push_back(i);
+			} else if (depth < bodyDepthOrder.front()) {
+				bodyDepthOrder.insert(bodyDepthOrder.begin(), i);
+			} else {
+				for (int idx = 1; idx < bodyDepthOrder.size(); idx++) {
+					if (depth < bodyDepthOrder[idx]) {
+						bodyDepthOrder.insert(bodyDepthOrder.begin() + idx, i);
+						break;
+					}
+				}
+			}
+		}
+		cout << "ofApp :: update () -- bodyDepthOrder (sorted) = " + ofToString(bodyDepthOrder) << endl;
 	}
 }
 
@@ -320,14 +343,14 @@ void ofApp::draw(){
 
 	// TODO: sort so foremost bodies appear foremost
 	// draw ribbons
-	for (unsigned int bodyIDX = 0; bodyIDX < ribbons.size(); bodyIDX++) {
+	for (unsigned int bodyIDX = 0; bodyIDX < bodyDepthOrder.size(); bodyIDX++) {
 		ofSetColor(bodyIDX * 32);//TODO: put this into the GUI
-		for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyIDX].size(); boneIDX++) {
+		for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyDepthOrder[bodyIDX]].size(); boneIDX++) {
 			ofMesh meshRibbon;	
 			meshRibbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-			for (unsigned int point = 0; point < ribbons[bodyIDX][boneIDX].size(); point++) {
+			for (unsigned int point = 0; point < ribbons[bodyDepthOrder[bodyIDX]][boneIDX].size(); point++) {
 				//add each joint to the triangle strip
-				meshRibbon.addVertex(ribbons[bodyIDX][boneIDX][point]);
+				meshRibbon.addVertex(ribbons[bodyDepthOrder[bodyIDX]][boneIDX][point]);
 			}
 
 			//end the shape
@@ -452,9 +475,12 @@ void ofApp::mouseExited(int x, int y){
 void ofApp::windowResized(int w, int h){
 	previewWidth = ofGetWindowWidth() * previewScaleW;
 	previewHeight = ofGetWindowHeight() * previewScaleH;
-	float depthMapScaleW = previewWidth / 512.0f;
+	//float depthMapScaleW = 1.5 * previewWidth / 512.0f; //TODO: put hard-coded values into GUI 
+	//float depthMapScaleH = 1.5 * previewHeight / 424.0f; //TODO: put hard-coded values into GUI 
+	//depthMapScale = ofVec3f(depthMapScaleW, depthMapScaleH, -100.0f * (depthMapScaleH + depthMapScaleW) / 2.0f); //TODO: put hard-coded values into GUI 
+	float depthMapScaleW = previewWidth / 512.0f; 
 	float depthMapScaleH = previewHeight / 424.0f;
-	depthMapScale = ofVec3f(depthMapScaleW, depthMapScaleH, (depthMapScaleH + depthMapScaleW)/2.0f);
+	depthMapScale = ofVec3f(depthMapScaleW, depthMapScaleH, (depthMapScaleH + depthMapScaleW) / 2.0f);
 }
 
 //--------------------------------------------------------------
