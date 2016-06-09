@@ -37,6 +37,8 @@ class ofApp : public ofBaseApp{
 	// gui related variables and events
 	void guiEvent(ofxUIEventArgs &e);
 	ofxUISuperCanvas *gui;
+	bool lookChanged;
+	int currentLook;
 	
 	//this holds all of our points
     vector<ofVec3f> points;
@@ -63,5 +65,6 @@ private:
 	float previewScaleW;
 	float previewScaleH;
 	ofVec3f depthMapScale;
+	int drawFrameRate;
 
 };

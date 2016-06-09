@@ -41,10 +41,137 @@ void ofApp::setup(){
 	// change color settings
 	// set mode to debugging
 
+	/////////////////////
+	// Initialize GUIS //
+	/////////////////////
+	lookChanged = true;
+	//
+	//------------
+	// Main GUI --
+	//////////////
+	gui = new ofxUISuperCanvas("preSENCE ribb");
+	ofAddListener(gui->newGUIEvent, this, &ofApp::guiEvent);
+	gui->addSpacer();
+	gui->addTextArea("text", "'h' to hide this panel", OFX_UI_FONT_SMALL);
+	//    gui -> addLabel("text", "'h' to hide this panel");
+	gui->addSpacer();
+	//
+	// radio list and key bindings to select different looks
+	gui->addLabel("looks: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
+	vector<string> looksList;
+	for (int i = 0; i < 4; i++) {
+		looksList.push_back(ofToString(i + 1));
+	}
+	ofxUIRadio *radioLook = gui->addRadio("look", looksList, OFX_UI_ORIENTATION_HORIZONTAL);
+	vector< ofxUIToggle*> toggles = radioLook->getToggles();
+	for (int i = 0; i < 4; i++) {
+		toggles[i]->bindToKey(ofToChar(ofToString(i + 1)));
+	}
+	gui->addTextArea("text", "press '1', '2', etc. to switch between different looks", OFX_UI_FONT_SMALL);
+	gui->addSpacer();
+	//
+	// FPS
+	gui->addFPSSlider("fps");
+	gui->addSpacer();
+	gui->addTextArea("text", "'+' or '-' to change frame rate");
+	gui->addIntSlider("set fps", 1, 60, &drawFrameRate);
+	gui->addSpacer();
+	//
+	// fullscreen toggle
+	ofxUIToggle *toggleFullScreen = gui->addToggle("fullscreen", false);
+	toggleFullScreen->bindToKey('f');
+	toggleFullScreen->bindToKey('F');
+	//
+	// debugging toggle
+	ofxUIToggle* toggleDebugging = gui->addToggle("debugging", &debugging);
+	toggleDebugging->bindToKey('d');
+	toggleDebugging->bindToKey('D');
+	gui->addSpacer();
+	//
+	// hard reset
+	ofxUIButton *buttonReset = gui->addButton("hardreset", false);
+	buttonReset->bindToKey('r');
+	buttonReset->bindToKey('R');
+	//
+	// save Settings
+	gui->addLabelButton("save main settings", false);
+	gui->autoSizeToFitWidgets();
+
+}
+
+//--------------------------------------------------------------
+void ofApp::guiEvent(ofxUIEventArgs &e) {
+	//*
+	bool noCallbackForWidget = false;
+	string nameStr = e.widget->getName();
+	int kind = e.widget->getKind();
+	if (nameStr == "fullscreen") {
+		ofSetFullscreen(((ofxUIToggle *)e.widget)->getValue());
+	}
+	else if (nameStr == "save main settings") {
+		gui->saveSettings("guiSettings_" + ofToString(currentLook) + ".xml");
+	}
+	else if (nameStr == "look" || nameStr == "1" || nameStr == "2" || nameStr == "3" || nameStr == "4") {
+		ofxUIRadio *radioLook;
+		if (kind == OFX_UI_WIDGET_RADIO) radioLook = (ofxUIRadio *)e.widget;
+		else radioLook = (ofxUIRadio *)e.widget->getParent();
+		switch (radioLook->getValue()) {
+
+		case 0: // 1
+			currentLook = 1;
+			//currentLookStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse";
+			break;
+
+		case 1: // 2
+			currentLook = 2;
+			//currentLookStr = "2 - PARTICLE_MODE_REPEL: repels from mouse";
+			break;
+
+		case 2: // 3
+			currentLook = 3;
+			//currentLookStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'n' to disable force";
+			break;
+
+		case 3: // 4
+			currentLook = 4;
+			//currentLookStr = "4 - PARTICLE_MODE_NOISE: snow particle simulation";
+			//resetParticles(false);
+			break;
+
+		default:
+			break;
+		}
+
+		lookChanged = true;
+	}
+	else if (nameStr == "hardreset") {
+		//resetParticles(true);
+	}
+	else {
+		// default
+		noCallbackForWidget = true;
+	}
+
+	// debug
+	if (ofGetLogLevel() == OF_LOG_VERBOSE) {
+		if (noCallbackForWidget) {
+			cout << "[verbose] ofApp::guiEvent(ofxUIEventArgs &e) -- unset callback for gui element name = " << nameStr << endl;
+		}
+		else {
+			cout << "[verbose] ofApp::guiEvent(ofxUIEventArgs &e) -- gui element name = " << nameStr << endl;
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+	// GUI load settings when state changes
+	if (lookChanged) {
+		gui->loadSettings("guiSettings_" + ofToString(currentLook) + ".xml");
+		lookChanged = false;
+	}
+	drawFrameRate = ofGetFrameRate();
+
 	//don't move the points if we are using the camera
     if(!usecamera){
         ofVec3f sumOfAllPoints(0,0,0);
@@ -246,17 +373,11 @@ void ofApp::keyPressed(int key){
 		usecamera = !usecamera;
 		break;
 
-	case 'd':
-	case 'D':
-		//hitting space key swaps the camera view
-		debugging = !debugging;
+	case 'h':
+	case 'H':
+		gui->toggleVisible();
 		break;
 
-	case 'f':
-	case 'F':
-		//hitting 'f' key toggles full screen mode
-		ofToggleFullscreen();
-		break;
 
 	default:
 		break;
