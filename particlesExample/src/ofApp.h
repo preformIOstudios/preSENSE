@@ -28,6 +28,7 @@ class ofApp : public ofBaseApp{
 
 		void guiEvent(ofxUIEventArgs &e);
 		ofxUISuperCanvas *gui;
+		ofxUISuperCanvas *guiColor;
 		bool lookChanged;
 		
 		particleMode currentMode;
@@ -56,5 +57,11 @@ private:
 	float bgRed, bgGreen, bgBlue;
 	ofColor bgGradient;
 	float bgGradRed, bgGradGreen, bgGradBlue;
+	ofColor fgColor;
+	float fgRed, fgGreen, fgBlue, fgAlpha;
+	ofColor indexColor;
+	float indexRed, indexGreen, indexBlue, indexAlpha;
+	ofColor skelColor;
+	float skelRed, skelGreen, skelBlue, skelAlpha;
 
 };

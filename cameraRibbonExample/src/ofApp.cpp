@@ -84,6 +84,13 @@ void ofApp::setup(){
 	gui->addSlider("blue", 0.0, 255.0, &bgBlue);
 	gui->addSpacer();
 	//
+	// Background Gradient Color
+	gui->addTextArea("text", "gradient color");
+	gui->addSlider("gradRed", 0.0, 255.0, &bgGradRed);
+	gui->addSlider("gradGreen", 0.0, 255.0, &bgGradGreen);
+	gui->addSlider("gradBlue", 0.0, 255.0, &bgGradBlue);
+	gui->addSpacer();
+	//
 	// fullscreen toggle
 	ofxUIToggle *toggleFullScreen = gui->addToggle("fullscreen", false);
 	toggleFullScreen->bindToKey('f');
@@ -104,6 +111,48 @@ void ofApp::setup(){
 	gui->addLabelButton("save main settings", false);
 	gui->autoSizeToFitWidgets();
 
+	//
+	//-------------
+	// Color GUI --
+	///////////////
+
+	guiColor = new ofxUISuperCanvas("preSENSE colors");
+	ofAddListener(guiColor->newGUIEvent, this, &ofApp::guiEvent);
+	guiColor->addSpacer();
+	//
+	guiColor->addLabel("foreground color settings", OFX_UI_FONT_MEDIUM);
+	vector< string > vnamesBlendIMG; vnamesBlendIMG.push_back("i0"); vnamesBlendIMG.push_back("iA"); vnamesBlendIMG.push_back("i+"); vnamesBlendIMG.push_back("i-"); vnamesBlendIMG.push_back("i*"); vnamesBlendIMG.push_back("iS");
+	ofxUIRadio *radioBlendIMG = guiColor->addRadio("foreground blend mode", vnamesBlendIMG, OFX_UI_ORIENTATION_HORIZONTAL);
+	guiColor->addSlider("fg red", 0.0, 255.0, &fgRed);
+	guiColor->addSlider("fg green", 0.0, 255.0, &fgGreen);
+	guiColor->addSlider("fg blue", 0.0, 255.0, &fgBlue);
+	guiColor->addSlider("fg alpha", 0.0, 255.0, &fgAlpha);
+	guiColor->addSpacer();
+	//
+	guiColor->addLabel("index image settings", OFX_UI_FONT_MEDIUM);
+	vector< string > vnamesDepthCLR; vnamesDepthCLR.push_back("PSYCHEDELIC_SHADES"); vnamesDepthCLR.push_back("PSYCHEDELIC"); vnamesDepthCLR.push_back("RAINBOW"); vnamesDepthCLR.push_back("CYCLIC_RAINBOW"); vnamesDepthCLR.push_back("BLUES"); vnamesDepthCLR.push_back("BLUES_INV"); vnamesDepthCLR.push_back("GREY"); vnamesDepthCLR.push_back("STATUS");
+	ofxUIRadio *radioMode = guiColor->addRadio("index color mode", vnamesDepthCLR, OFX_UI_ORIENTATION_VERTICAL);
+	vector< string > vnamesBlendDEPTH; vnamesBlendDEPTH.push_back("d0"); vnamesBlendDEPTH.push_back("dA"); vnamesBlendDEPTH.push_back("d+"); vnamesBlendDEPTH.push_back("d-"); vnamesBlendDEPTH.push_back("d*"); vnamesBlendDEPTH.push_back("dS");
+	ofxUIRadio *radioBlendDepth = guiColor->addRadio("index blend mode", vnamesBlendDEPTH, OFX_UI_ORIENTATION_HORIZONTAL);
+	guiColor->addSlider("index red", 0.0, 255.0, &indexRed);
+	guiColor->addSlider("index green", 0.0, 255.0, &indexGreen);
+	guiColor->addSlider("index blue", 0.0, 255.0, &indexBlue);
+	guiColor->addSlider("index alpha", 0.0, 255.0, &indexAlpha);
+	guiColor->addSpacer();
+	//
+	guiColor->addLabel("skeleton drawing settings", OFX_UI_FONT_MEDIUM);
+	vector< string > vnamesBlendSKEL; vnamesBlendSKEL.push_back("s0"); vnamesBlendSKEL.push_back("sA"); vnamesBlendSKEL.push_back("s+"); vnamesBlendSKEL.push_back("s-"); vnamesBlendSKEL.push_back("s*"); vnamesBlendSKEL.push_back("sS");
+	ofxUIRadio *radioBlendSkel = guiColor->addRadio("skeleton blend mode", vnamesBlendSKEL, OFX_UI_ORIENTATION_HORIZONTAL);
+	guiColor->addSlider("skel red", 0.0, 255.0, &skelRed);
+	guiColor->addSlider("skel green", 0.0, 255.0, &skelGreen);
+	guiColor->addSlider("skel blue", 0.0, 255.0, &skelBlue);
+	guiColor->addSlider("skel alpha", 0.0, 255.0, &skelAlpha);
+	guiColor->addSpacer();
+	//
+	// Save Settings
+	guiColor->addLabelButton("save color settings", false);
+	guiColor->autoSizeToFitWidgets();
+
 }
 
 //--------------------------------------------------------------
@@ -112,12 +161,18 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	bool noCallbackForWidget = false;
 	string nameStr = e.widget->getName();
 	int kind = e.widget->getKind();
+	
 	if (nameStr == "fullscreen") {
 		ofSetFullscreen(((ofxUIToggle *)e.widget)->getValue());
 	}
+
 	else if (nameStr == "save main settings") {
 		gui->saveSettings("guiSettings_" + ofToString(currentLook) + ".xml");
 	}
+	else if (nameStr == "save color settings") {
+		guiColor->saveSettings("guiSettings_" + ofToString(currentLook) + "_color.xml");
+	}
+
 	else if (nameStr == "look" || nameStr == "1" || nameStr == "2" || nameStr == "3" || nameStr == "4") {
 		ofxUIRadio *radioLook;
 		if (kind == OFX_UI_WIDGET_RADIO) radioLook = (ofxUIRadio *)e.widget;
@@ -151,6 +206,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 		lookChanged = true;
 	}
+
 	else if (nameStr == "hardreset") {
 		//resetParticles(true);
 	}
@@ -172,11 +228,18 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 //--------------------------------------------------------------
 void ofApp::update(){
+
+	fgColor = ofColor(fgRed, fgGreen, fgBlue, fgAlpha);
 	bgColor = ofColor(bgRed, bgGreen, bgBlue);
+	bgGradient = ofColor(bgGradRed, bgGradGreen, bgGradBlue);
+
+	indexColor = ofColor(indexRed, indexBlue, indexGreen);
+	skelColor = ofColor(skelRed, skelGreen, skelBlue, skelAlpha);
 
 	// GUI load settings when state changes
 	if (lookChanged) {
 		gui->loadSettings("guiSettings_" + ofToString(currentLook) + ".xml");
+		guiColor->loadSettings("guiSettings_" + ofToString(currentLook) + "_color.xml");
 		lookChanged = false;
 	}
 	drawFrameRate = ofGetFrameRate();
@@ -295,8 +358,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofBackground(bgColor);
-
+	ofBackgroundGradient(bgGradient, bgColor, OF_GRADIENT_LINEAR); //todo: put gradient mode into UI
 	//if we're using the camera, start it.
 	//everything that you draw between begin()/end() shows up from the view of the camera
     if(usecamera){
@@ -305,7 +367,7 @@ void ofApp::draw(){
 
 	if (debugging) {
 
-		ofSetColor(0);//TODO: put this into the GUI
+		ofSetColor(fgColor);
 		//do the same thing from the first example...
 		ofMesh mesh;
 		mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
@@ -353,7 +415,7 @@ void ofApp::draw(){
 	// TODO: sort so foremost bodies appear foremost
 	// draw ribbons
 	for (unsigned int bodyIDX = 0; bodyIDX < bodyDepthOrder.size(); bodyIDX++) {
-		ofSetColor((bodyDepthOrder.size() -bodyIDX) * 32);//TODO: put this into the GUI
+		ofSetColor(fgColor / (bodyDepthOrder.size() -bodyIDX));
 		for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyDepthOrder[bodyIDX]].size(); boneIDX++) {
 			ofMesh meshRibbon;	
 			meshRibbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
@@ -375,7 +437,6 @@ void ofApp::draw(){
 	ofPushStyle();
 	//TODO: move these hardcoded numbers into GUI
 	ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);//TODO: put this into the GUI
-	ofSetColor(127);//TODO: put this into the GUI
 	if (debugging) {
 		//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 
@@ -387,7 +448,9 @@ void ofApp::draw(){
 		//kinect.getBodySource()->drawProjected(previewWidth, 0 + colorTop, previewWidth, colorHeight);
 
 		//kinect.getInfraredSource()->draw(0, 0, previewWidth, previewHeight);
+		ofSetColor(indexColor);
 		kinect.getBodyIndexSource()->draw(0, 0, previewWidth, previewHeight);
+		ofSetColor(skelColor);
 		kinect.getBodySource()->drawProjected(0, 0, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
 	}
 	ofPopStyle();
@@ -406,6 +469,7 @@ void ofApp::keyPressed(int key){
 	case 'h':
 	case 'H':
 		gui->toggleVisible();
+		guiColor->toggleVisible();
 		break;
 
 

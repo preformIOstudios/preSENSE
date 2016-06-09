@@ -37,6 +37,7 @@ class ofApp : public ofBaseApp{
 	// gui related variables and events
 	void guiEvent(ofxUIEventArgs &e);
 	ofxUISuperCanvas *gui;
+	ofxUISuperCanvas *guiColor;
 	bool lookChanged;
 	int currentLook;
 	
@@ -71,5 +72,11 @@ private:
 	int drawFrameRate;
 	ofColor bgColor;
 	float bgRed, bgGreen, bgBlue;
+	ofColor fgColor;
+	float fgRed, fgGreen, fgBlue, fgAlpha;
+	ofColor indexColor;
+	float indexRed, indexGreen, indexBlue, indexAlpha;
+	ofColor skelColor;
+	float skelRed, skelGreen, skelBlue, skelAlpha;
 
 };
