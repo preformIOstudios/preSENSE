@@ -29,7 +29,7 @@ class ofApp : public ofBaseApp{
 		void guiEvent(ofxUIEventArgs &e);
 		ofxUISuperCanvas *gui;
 		ofxUISuperCanvas *guiColor;
-		int currentLook;
+		int currentLookBank, currentLook;
 		bool lookChanged;
 		
 		particleMode currentMode;

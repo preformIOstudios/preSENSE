@@ -30,6 +30,7 @@ void ofApp::setup() {
 	/////////////////////
 	// Initialize GUIS //
 	/////////////////////
+	currentLookBank = 0;
 	currentLook = 0;
 	lookChanged = true; // forces GUI to load settings
 	//
@@ -43,6 +44,21 @@ void ofApp::setup() {
 	//    gui -> addLabel("text", "'h' to hide this panel");
 	gui->addSpacer();
 	//
+	// radio list and key bindings to select different banks of looks
+	gui->addLabel("banks: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
+	vector<string> lookBankList;
+	lookBankList.push_back("!");
+	lookBankList.push_back("@");
+	lookBankList.push_back("#");
+	lookBankList.push_back("$");
+	ofxUIRadio *radioLookBanks = gui->addRadio("banks", lookBankList, OFX_UI_ORIENTATION_HORIZONTAL);
+	vector< ofxUIToggle*> togglesBanks = radioLookBanks->getToggles();
+	togglesBanks[0]->bindToKey('!');
+	togglesBanks[1]->bindToKey('@');
+	togglesBanks[2]->bindToKey('#');
+	togglesBanks[3]->bindToKey('$');
+	gui->addTextArea("text", "press 'SHIFT' + '1', '2', etc. to switch between different banks of looks", OFX_UI_FONT_SMALL);
+	//
 	// radio list and key bindings to select different looks
 	gui->addLabel("looks: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
 	vector<string> looksList; 
@@ -50,9 +66,9 @@ void ofApp::setup() {
 		looksList.push_back(ofToString(i + 1));
 	}
 	ofxUIRadio *radioLook = gui->addRadio("look", looksList, OFX_UI_ORIENTATION_HORIZONTAL);
-	vector< ofxUIToggle*> toggles = radioLook->getToggles();
+	vector< ofxUIToggle*> togglesLooks = radioLook->getToggles();
 	for (int i = 0; i < 4; i++) {
-		toggles[i]->bindToKey(ofToChar( ofToString(i + 1) ));
+		togglesLooks[i]->bindToKey(ofToChar( ofToString(i + 1) ));
 	}
 	gui->addTextArea("text", "press '1', '2', etc. to switch between different looks", OFX_UI_FONT_SMALL);
 	gui->addSpacer();
@@ -204,10 +220,19 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	}
 
 	else if (nameStr == "save main settings") {
-		gui->saveSettings("guiSettings_" + ofToString(currentLook) + ".xml");
+		gui->saveSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
 	}
 	else if (nameStr == "save color settings") {
-		guiColor->saveSettings("guiSettings_" + ofToString(currentLook) + "_color.xml");
+		guiColor->saveSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
+	}
+
+	else if (nameStr == "bank" || nameStr == "!" || nameStr == "@" || nameStr == "#" || nameStr == "$") {
+		ofxUIRadio *radioLookBank;
+		if (kind == OFX_UI_WIDGET_RADIO) radioLookBank = (ofxUIRadio *)e.widget;
+		else radioLookBank = (ofxUIRadio *)e.widget->getParent();
+		currentLookBank = radioLookBank->getValue();
+
+		//lookChanged = true; // don't change look until a look is selected from this bank
 	}
 
 	else if (nameStr == "look" || nameStr == "1" || nameStr == "2" || nameStr == "3" || nameStr == "4") {
@@ -371,8 +396,8 @@ void ofApp::update(){
 
 
 	if (lookChanged) {
-		gui->loadSettings("guiSettings_" + ofToString(currentLook) + ".xml");
-		guiColor->loadSettings("guiSettings_" + ofToString(currentLook) + "_color.xml");
+		gui->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
+		guiColor->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
 		lookChanged = false;
 	}
 
