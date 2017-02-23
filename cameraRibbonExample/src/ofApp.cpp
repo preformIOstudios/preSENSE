@@ -221,6 +221,48 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	else if (nameStr == "hardreset") {
 		//resetParticles(true);
 	}
+	else if (nameStr == "foreground blend mode" || nameStr == "i0" || nameStr == "iA" || nameStr == "i+" || nameStr == "i-" || nameStr == "i*" || nameStr == "iS") {
+		ofxUIRadio *radio;
+		if (nameStr == "foreground blend mode") {
+			radio = (ofxUIRadio *)e.widget;
+		}
+		else {
+			radio = (ofxUIRadio *)e.widget->getParent();
+		}
+		fgBlendMode = radio->getValue();
+	}
+	else if (nameStr == "index color mode" || nameStr == "PSYCHEDELIC_SHADES" || nameStr == "PSYCHEDELIC" || nameStr == "RAINBOW" || nameStr == "CYCLIC_RAINBOW" || nameStr == "BLUES" || nameStr == "BLUES_INV" || nameStr == "GREY" || nameStr == "STATUS") {
+		ofxUIRadio *radio;
+		if (nameStr == "index color mode") {
+			radio = (ofxUIRadio *)e.widget;
+		}
+		else {
+			radio = (ofxUIRadio *)e.widget->getParent();
+		}
+		indexColorMode = radio->getValue();
+		//kinect.setDepthColoring((DepthColoring)indexColorMode); // TODO: is this even possible with ofxKFW2?
+	}
+	else if (nameStr == "index blend mode" || nameStr == "d0" || nameStr == "dA" || nameStr == "d+" || nameStr == "d-" || nameStr == "d*" || nameStr == "dS") {
+		ofxUIRadio *radio;
+		if (nameStr == "index blend mode") {
+			radio = (ofxUIRadio *)e.widget;
+		}
+		else {
+			radio = (ofxUIRadio *)e.widget->getParent();
+		}
+		indexBlendMode = radio->getValue();
+	}
+	else if (nameStr == "skeleton blend mode" || nameStr == "s0" || nameStr == "sA" || nameStr == "s+" || nameStr == "s-" || nameStr == "s*" || nameStr == "sS") {
+		ofxUIRadio *radio;
+		if (nameStr == "skeleton blend mode") {
+			radio = (ofxUIRadio *)e.widget;
+		}
+		else {
+			radio = (ofxUIRadio *)e.widget->getParent();
+		}
+		skelBlendMode = radio->getValue();
+	}
+
 	else {
 		// default
 		noCallbackForWidget = true;
@@ -376,9 +418,12 @@ void ofApp::draw(){
         camera.begin();
     }
 
+	ofPushStyle();
 	if (debugging) {
 
 		ofSetColor(fgColor);
+		ofEnableBlendMode((ofBlendMode)fgBlendMode);
+
 		//do the same thing from the first example...
 		ofMesh mesh;
 		mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
@@ -422,11 +467,14 @@ void ofApp::draw(){
 		//end the shape
 		mesh.draw();
 	}
+	ofPopStyle();
 
+	ofPushStyle();
 	// TODO: sort so foremost bodies appear foremost
 	// draw ribbons
 	for (unsigned int bodyIDX = 0; bodyIDX < bodyDepthOrder.size(); bodyIDX++) {
 		ofSetColor(fgColor / (bodyDepthOrder.size() -bodyIDX));
+		ofEnableBlendMode((ofBlendMode)fgBlendMode);
 		for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyDepthOrder[bodyIDX]].size(); boneIDX++) {
 			ofMesh meshRibbon;	
 			meshRibbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
@@ -439,6 +487,7 @@ void ofApp::draw(){
 			meshRibbon.draw();
 		}
 	}
+	ofPopStyle();
 
 	//if we're using the camera, take it away
     if(usecamera){
@@ -447,7 +496,6 @@ void ofApp::draw(){
 
 	ofPushStyle();
 	//TODO: move these hardcoded numbers into GUI
-	ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);//TODO: put this into the GUI
 	if (debugging) {
 		//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 
@@ -460,13 +508,18 @@ void ofApp::draw(){
 
 		//kinect.getInfraredSource()->draw(0, 0, previewWidth, previewHeight);
 	}
+	ofPopStyle();
+	ofPushStyle();
 	if (debugging || drawBodyIndex) {
 		ofSetColor(indexColor);
+		ofEnableBlendMode((ofBlendMode)indexBlendMode);
 		kinect.getBodyIndexSource()->draw(0, 0, previewWidth, previewHeight);
 	}
-
+	ofPopStyle();
+	ofPushStyle();
 	if (debugging || drawBones) {
 		ofSetColor(skelColor);
+		ofEnableBlendMode((ofBlendMode)skelBlendMode);
 		kinect.getBodySource()->drawProjected(0, 0, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
 	}	
 	ofPopStyle();

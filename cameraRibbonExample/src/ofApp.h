@@ -81,5 +81,5 @@ private:
 	float indexRed, indexGreen, indexBlue, indexAlpha;
 	ofColor skelColor;
 	float skelRed, skelGreen, skelBlue, skelAlpha;
-
+	int fgBlendMode, indexColorMode, indexBlendMode, skelBlendMode;
 };
