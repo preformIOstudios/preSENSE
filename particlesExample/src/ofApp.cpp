@@ -5,7 +5,7 @@ void ofApp::setup() {
 	ofSetVerticalSync(true);
 
 	int num = 1500; //TODO: move hard coded values into GUI
-	p.assign(num, demoParticle());
+	particles.assign(num, demoParticle());
 	currentMode = PARTICLE_MODE_NOISE;//TODO: move hard coded values into GUI
 
 	currentModeStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse"; //TODO: move hard coded values into GUI
@@ -238,15 +238,15 @@ void ofApp::resetParticles(bool posReset = false) {
 	//}
 	//attractPointsWithMovement = attractPoints;
 
-	for (unsigned int i = 0; i < p.size(); i++) {
-		p[i].setMode(currentMode);
-		p[i].setAttractPoints(&attractPointsWithMovement);
+	for (unsigned int i = 0; i < particles.size(); i++) {
+		particles[i].setMode(currentMode);
+		particles[i].setAttractPoints(&attractPointsWithMovement);
 		if (attractPointsWithMovement.size() > 0) {
-			p[i].setAttractPoint(&attractPointsWithMovement[attactionHandID]);
+			particles[i].setAttractPoint(&attractPointsWithMovement[attactionHandID]);
 		} else {
-			p[i].setAttractPoint(NULL);
+			particles[i].setAttractPoint(NULL);
 		}
-		p[i].reset(posReset);
+		particles[i].reset(posReset);
 	}	
 }
 
@@ -316,9 +316,9 @@ void ofApp::update(){
 	//////////////////
 	// Particles
 	///////////////////
-	for(unsigned int i = 0; i < p.size(); i++){
-		p[i].setMode(currentMode);
-		p[i].update();
+	for(unsigned int i = 0; i < particles.size(); i++){
+		particles[i].setMode(currentMode);
+		particles[i].update();
 	}
 
 	attractPoints = hands;
@@ -387,8 +387,8 @@ void ofApp::draw(){
 	ofPopStyle();
 
 	ofSetColor(fgColor);
-	for (unsigned int i = 0; i < p.size(); i++) {
-		p[i].draw();
+	for (unsigned int i = 0; i < particles.size(); i++) {
+		particles[i].draw();
 	}
 }
 

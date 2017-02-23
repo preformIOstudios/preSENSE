@@ -34,7 +34,7 @@ class ofApp : public ofBaseApp{
 		particleMode currentMode;
 		string currentModeStr; 
 
-		vector <demoParticle> p;
+		vector <demoParticle> particles;
 		vector <ofPoint> hands;
 		int attactionHandID;
 		vector <ofPoint> attractPoints;
