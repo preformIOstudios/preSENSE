@@ -52,14 +52,15 @@ void demoParticle::update(){
 	//if( mode == PARTICLE_MODE_ATTRACT ){
 		//ofPoint attractPt(ofGetMouseX(), ofGetMouseY());
 		//frc = attractPt-pos; // we get the attraction force/vector by looking at the mouse pos relative to our pos
-	if( mode == PARTICLE_MODE_ATTRACT && attractPoints){
+	if( mode == PARTICLE_MODE_ATTRACT && attractPoints->size() > 0){
+		//if (attractPoint == NULL) *attractPoint = &attractPoints[0];
 		frc = *attractPoint-pos; // we get the attraction force/vector by looking at the mouse pos relative to our pos
 		frc.normalize(); //by normalizing we disregard how close the particle is to the attraction point 
 		
 		vel *= drag; //apply drag
 		vel += frc * 0.6; //apply force //TODO: move hard coded values into GUI
 	}
-	else if( mode == PARTICLE_MODE_REPEL && attractPoints ){ //TODO: update this to be repelled by attract points
+	else if( mode == PARTICLE_MODE_REPEL && attractPoints->size() > 0){ //TODO: update this to be repelled by attract points
 
 		//1 - find closest attractPoint 
 		ofPoint closestPt;

@@ -36,7 +36,7 @@ class ofApp : public ofBaseApp{
 
 		vector <demoParticle> particles;
 		vector <ofPoint> hands;
-		int attactionHandID;
+		int attractionHandID;
 		vector <ofPoint> attractPoints;
 		vector <ofPoint> attractPointsWithMovement;
 

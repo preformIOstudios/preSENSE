@@ -33,7 +33,7 @@ void ofApp::setup() {
 	/////////////////////
 	// Initialize GUIS //
 	/////////////////////
-	lookChanged = true;
+	lookChanged = true; // forces GUI to load settings
 	//
 	//------------
 	// Main GUI --
@@ -242,7 +242,7 @@ void ofApp::resetParticles(bool posReset = false) {
 		particles[i].setMode(currentMode);
 		particles[i].setAttractPoints(&attractPointsWithMovement);
 		if (attractPointsWithMovement.size() > 0) {
-			particles[i].setAttractPoint(&attractPointsWithMovement[attactionHandID]);
+			particles[i].setAttractPoint(&attractPointsWithMovement[attractionHandID]);
 		} else {
 			particles[i].setAttractPoint(NULL);
 		}
@@ -324,7 +324,7 @@ void ofApp::update(){
 	attractPoints = hands;
 	if (attractPoints.size() != attractPointsWithMovement.size()) {
 		attractPointsWithMovement.resize(attractPoints.size());
-		attactionHandID = ofRandom(hands.size());
+		attractionHandID = ofRandom(hands.size());
 		resetParticles();
 	}
 
