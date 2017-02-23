@@ -192,23 +192,18 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 		case 0: // 1
 			currentLook = 1;
-			//currentLookStr = "1 - PARTICLE_MODE_ATTRACT: attracts to mouse";
 			break;
 
 		case 1: // 2
 			currentLook = 2;
-			//currentLookStr = "2 - PARTICLE_MODE_REPEL: repels from mouse";
 			break;
 
 		case 2: // 3
 			currentLook = 3;
-			//currentLookStr = "3 - PARTICLE_MODE_NEAREST_POINTS: hold 'n' to disable force";
 			break;
 
 		case 3: // 4
 			currentLook = 4;
-			//currentLookStr = "4 - PARTICLE_MODE_NOISE: snow particle simulation";
-			//resetParticles(false);
 			break;
 
 		default:
