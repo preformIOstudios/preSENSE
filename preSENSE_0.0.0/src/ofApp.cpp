@@ -118,7 +118,7 @@ void ofApp::setup() {
 	toggleFullScreen->bindToKey('F');
 	//
 	// particle modes
-	gui->addLabel("particle mode: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
+	gui->addLabel("particle mode: ");
 	vector<string> particleModes;
 	particleModes.push_back("a");
 	particleModes.push_back("r");
@@ -276,10 +276,10 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	}
 
 	else if (nameStr == "particle mode" || nameStr == "a" || nameStr == "r" || nameStr == "n" || nameStr == "x") {
-		ofxUIRadio *radioLook;
-		if (kind == OFX_UI_WIDGET_RADIO) radioLook = (ofxUIRadio *)e.widget;
-		else radioLook = (ofxUIRadio *)e.widget->getParent();
-		switch (radioLook->getValue()) {
+		ofxUIRadio *radioParticleMode;
+		if (kind == OFX_UI_WIDGET_RADIO) radioParticleMode = (ofxUIRadio *)e.widget;
+		else radioParticleMode = (ofxUIRadio *)e.widget->getParent();
+		switch (radioParticleMode->getValue()) {
 
 		case 0: // a
 			currentMode = PARTICLE_MODE_ATTRACT;
