@@ -26,6 +26,8 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		void reloadLook();
+		void resetGuiPositions();
 		void guiEvent(ofxUIEventArgs &e);
 		ofxUISuperCanvas *gui;
 		ofxUISuperCanvas *guiColor;
@@ -54,7 +56,7 @@ private:
 	float previewScaleH;
 	ofVec3f depthMapScale;
 	int drawFrameRate;
-	bool drawBodyIndex, drawBones;
+	bool drawBodyIndex, drawMirrored, drawBones;
 	ofColor bgColor;
 	float bgRed, bgGreen, bgBlue;
 	ofColor bgGradient;

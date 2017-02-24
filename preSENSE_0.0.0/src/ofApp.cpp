@@ -2,14 +2,17 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	ofSetVerticalSync(true);
 
-	int num = 1500; //TODO: move hard coded values into GUI
-	particles.assign(num, demoParticle());
-
+	/////////////////////
+	// particle system 
+	/////////////////////
+	int particlesMax = 1500; //TODO: move hard coded values into GUI
+	particles.assign(particlesMax, demoParticle());
 	resetParticles(true);
 
-	//initialize kinect object
+	/////////////////////
+	// kinect object
+	/////////////////////
 	//TODO: only initialize necessary sources
 	kinect.open();
 	kinect.initDepthSource();
@@ -18,7 +21,9 @@ void ofApp::setup() {
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
 
-	//set debugging variables
+	/////////////////////
+	// debugging variables
+	/////////////////////
 	debugging = false;//TODO: put this into the GUI
 	previewScaleH = 1.0f;//TODO: put this into the GUI
 	previewScaleW = 1.0f;//TODO: put this into the GUI
@@ -28,11 +33,11 @@ void ofApp::setup() {
 	// set mode to debugging
 
 	/////////////////////
-	// Initialize GUIS //
+	// GUIS
 	/////////////////////
-	currentLookBank = 0;
-	currentLook = 0;
-	lookChanged = true; // forces GUI to load settings
+	currentLookBank = 1;
+	currentLook = 1;
+	lookChanged = true; // forces GUI to load settings // TODO: Debug this
 	//
 	//------------
 	// Main GUI --
@@ -41,23 +46,27 @@ void ofApp::setup() {
 	ofAddListener(gui->newGUIEvent, this, &ofApp::guiEvent);
 	gui->addSpacer();
 	gui->addTextArea("text", "'h' to hide this panel", OFX_UI_FONT_SMALL);
-	//    gui -> addLabel("text", "'h' to hide this panel");
 	gui->addSpacer();
 	//
 	// radio list and key bindings to select different banks of looks
-	gui->addLabel("banks: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
+	gui->addLabel("banks: "); 
 	vector<string> lookBankList;
 	lookBankList.push_back("!");
 	lookBankList.push_back("@");
 	lookBankList.push_back("#");
 	lookBankList.push_back("$");
+	lookBankList.push_back("%");
+	lookBankList.push_back("^");
+	lookBankList.push_back("&");
 	ofxUIRadio *radioLookBanks = gui->addRadio("banks", lookBankList, OFX_UI_ORIENTATION_HORIZONTAL);
 	vector< ofxUIToggle*> togglesBanks = radioLookBanks->getToggles();
 	togglesBanks[0]->bindToKey('!');
 	togglesBanks[1]->bindToKey('@');
 	togglesBanks[2]->bindToKey('#');
 	togglesBanks[3]->bindToKey('$');
-	gui->addTextArea("text", "press 'SHIFT' + '1', '2', etc. to switch between different banks of looks", OFX_UI_FONT_SMALL);
+	togglesBanks[4]->bindToKey('%');
+	togglesBanks[5]->bindToKey('^');
+	togglesBanks[6]->bindToKey('&');
 	//
 	// radio list and key bindings to select different looks
 	gui->addLabel("looks: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
@@ -70,15 +79,14 @@ void ofApp::setup() {
 	for (int i = 0; i < 4; i++) {
 		togglesLooks[i]->bindToKey(ofToChar( ofToString(i + 1) ));
 	}
-	gui->addTextArea("text", "press '1', '2', etc. to switch between different looks", OFX_UI_FONT_SMALL);
 	gui->addSpacer();
 	//
 	// FPS
 	gui->addFPSSlider("fps");
 	gui->addSpacer();
-	gui->addTextArea("text", "'+' or '-' to change frame rate");
-	gui->addIntSlider("set fps", 1, 60, &drawFrameRate);
-	gui->addSpacer();
+	//gui->addTextArea("text", "'+' or '-' to change frame rate");
+	//gui->addIntSlider("set fps", 1, 60, &drawFrameRate);
+	//gui->addSpacer();
 	//
 	// Background Color
 	gui->addTextArea("text", "background color");
@@ -99,8 +107,7 @@ void ofApp::setup() {
 	toggleFullScreen->bindToKey('f');
 	toggleFullScreen->bindToKey('F');
 	//
-	//
-	// TODO: add GUI for currentMode
+	// particle modes
 	gui->addLabel("particle mode: "); // TODO: Make this more like the editors where there's a "look Editor" that handles larger settings files which can be changed between
 	vector<string> particleModes;
 	particleModes.push_back("a");
@@ -108,17 +115,17 @@ void ofApp::setup() {
 	particleModes.push_back("n");
 	particleModes.push_back("x");
 	ofxUIRadio *radioParticleModes = gui->addRadio("particle mode", particleModes, OFX_UI_ORIENTATION_HORIZONTAL);
-	//vector< ofxUIToggle*> toggles = radioParticleModes->getToggles();
-	//for (int i = 0; i < 4; i++) { // todo: create key bindings?
-	//	toggles[i]->bindToKey(ofToChar(ofToString(i + 1)));
-	//}
-	//gui->addTextArea("text", "press '1', '2', etc. to switch between different looks", OFX_UI_FONT_SMALL);
 	gui->addSpacer();
 	//
 	// draw index toggle
 	ofxUIToggle* toggleIndex = gui->addToggle("body index", &drawBodyIndex);
 	toggleIndex->bindToKey('i');
 	toggleIndex->bindToKey('I');
+	//
+	// draw mirrored
+	ofxUIToggle* mirrorImageToggle = gui->addToggle("mirror image", &drawMirrored);
+	mirrorImageToggle->bindToKey('m');
+	mirrorImageToggle->bindToKey('M');
 	//
 	// draw bones toggle
 	ofxUIToggle* toggleBones = gui->addToggle("bones", &drawBones);
@@ -138,7 +145,8 @@ void ofApp::setup() {
 	gui->addSpacer();
 	//
 	// save Settings
-	gui->addLabelButton("save main settings", false);
+	ofxUILabelButton *buttonSave = gui->addLabelButton("save main settings", false);
+	buttonSave->bindToKey('S');
 	gui->autoSizeToFitWidgets();
 
 	/*
@@ -151,13 +159,8 @@ void ofApp::setup() {
 	toggleKinected->bindToKey('x');
 	toggleKinected->bindToKey('X');
 	gui->addSpacer();
-	gui->addTextArea("text", "'m' to mirror kinect input");
-	ofxUIToggle* mirrorImageToggle = gui->addToggle("mirror image", &drawMirrored);
-	mirrorImageToggle->bindToKey('m');
-	mirrorImageToggle->bindToKey('M');
 	gui->addToggle("draw depth image", &drawDepth);1
 	gui->addToggle("draw depth behind", &drawDepthBehind);
-	gui->addToggle("draw skeletons", &drawSkeletons);
 	gui->addToggle("add joints 2 MSG", &drawJoints2MSG);
 	//
 	// Debug Messages
@@ -203,12 +206,30 @@ void ofApp::setup() {
 	guiColor->addSpacer();
 	//
 	// Save Settings
-	guiColor->addLabelButton("save color settings", false);
+	ofxUILabelButton *buttonSaveColor = guiColor->addLabelButton("save color settings", false);
+	buttonSaveColor->bindToKey('S');
 	guiColor->autoSizeToFitWidgets();
 
+	///////////////////////
+	// rendering settings
+	///////////////////////
+	ofSetFrameRate(60);//TODO: put this into the GUI
+	ofSetVerticalSync(true);
 }
 
 //--------------------------------------------------------------
+void ofApp::resetGuiPositions() {
+	gui->setPosition(0, 0);
+	guiColor->setPosition(ofGetWindowWidth() - guiColor->getGlobalCanvasWidth(), 0);
+}
+
+void ofApp::reloadLook() {
+	gui->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
+	guiColor->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
+	resetGuiPositions();
+}
+
+
 void ofApp::guiEvent(ofxUIEventArgs &e) {
 	//*
 	bool noCallbackForWidget = false;
@@ -282,10 +303,13 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 		resetParticles(true);
 	}
 
-	/*
 	else if (nameStr == "mirror image") {
-		kinectInterface->setMirror(drawMirrored); // TODO: this
+		// do nothing. drawMirrored bool gets used in the draw loop
+		//kinect.setsetMirror(drawMirrored); // TODO: this
 	}
+
+	/*
+
 	else if (nameStr == "kinected") {
 		if (kinected && !kinectsInitialized) // || ofGetKeyPressed('k')?
 		{
@@ -298,49 +322,6 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 			//            delete kinectInterface; kinectInterface = NULL;
 			//            kinectInterface = new kinectIO();
 		}
-
-
-	}
-	else if (nameStr == "image blend mode" || nameStr == "i0" || nameStr == "iA" || nameStr == "i+" || nameStr == "i-" || nameStr == "i*" || nameStr == "iS") {
-		ofxUIRadio *radio;
-		if (nameStr == "image blend mode") {
-			radio = (ofxUIRadio *)e.widget;
-		}
-		else {
-			radio = (ofxUIRadio *)e.widget->getParent();
-		}
-		imgBlendMode = radio->getValue();
-	}
-	else if (nameStr == "depth color mode" || nameStr == "PSYCHEDELIC_SHADES" || nameStr == "PSYCHEDELIC" || nameStr == "RAINBOW" || nameStr == "CYCLIC_RAINBOW" || nameStr == "BLUES" || nameStr == "BLUES_INV" || nameStr == "GREY" || nameStr == "STATUS") {
-		ofxUIRadio *radio;
-		if (nameStr == "depth color mode") {
-			radio = (ofxUIRadio *)e.widget;
-		}
-		else {
-			radio = (ofxUIRadio *)e.widget->getParent();
-		}
-		depthColorMode = radio->getValue();
-		kinectInterface->setDepthColoring((DepthColoring)depthColorMode);
-	}
-	else if (nameStr == "depth blend mode" || nameStr == "d0" || nameStr == "dA" || nameStr == "d+" || nameStr == "d-" || nameStr == "d*" || nameStr == "dS") {
-		ofxUIRadio *radio;
-		if (nameStr == "depth blend mode") {
-			radio = (ofxUIRadio *)e.widget;
-		}
-		else {
-			radio = (ofxUIRadio *)e.widget->getParent();
-		}
-		depthBlendMode = radio->getValue();
-	}
-	else if (nameStr == "skleton blend mode" || nameStr == "s0" || nameStr == "sA" || nameStr == "s+" || nameStr == "s-" || nameStr == "s*" || nameStr == "sS") {
-		ofxUIRadio *radio;
-		if (nameStr == "depth blend mode") {
-			radio = (ofxUIRadio *)e.widget;
-		}
-		else {
-			radio = (ofxUIRadio *)e.widget->getParent();
-		}
-		skelBlendMode = radio->getValue();
 
 
 	}
@@ -396,14 +377,10 @@ void ofApp::update(){
 
 
 	if (lookChanged) {
-		gui->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
-		guiColor->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
+		reloadLook();
 		lookChanged = false;
 	}
 
-	// GUI
-	/////////
-	drawFrameRate = ofGetFrameRate();
 
 	/////////////////
 	// Kinect
@@ -475,9 +452,10 @@ void ofApp::update(){
 void ofApp::draw(){
     ofBackgroundGradient(bgGradient, bgColor);
 	
-	ofSetColor(190);
-	if( currentMode == PARTICLE_MODE_NEAREST_POINTS ){
-		if (attractPoints.size() > 0 && debugging) {
+	if(debugging && currentMode == PARTICLE_MODE_NEAREST_POINTS ){
+		ofPushStyle();
+		ofSetColor(190);
+		if (attractPoints.size() > 0) {
 			for (unsigned int i = 0; i < attractPoints.size(); i++) {
 				ofNoFill();
 				ofDrawCircle(attractPointsWithMovement[i], 10);//TODO: move hard coded values into GUI
@@ -485,15 +463,14 @@ void ofApp::draw(){
 				ofDrawCircle(attractPointsWithMovement[i], 4);//TODO: move hard coded values into GUI
 			}
 		}
+		ofPopStyle();
 	}
 
-	ofSetColor(230);	//TODO: move hard coded values into GUI
-	ofDrawBitmapString(currentModeStr + "\n\nSpacebar to reset. \nKeys 1-4 to change mode.", 10, 20);//TODO: move hard coded values into GUI
 
-	ofPushStyle();
 	//TODO: move these hardcoded numbers into GUI
 	ofEnableBlendMode(OF_BLENDMODE_SCREEN);//TODO: move hard coded values into GUI
 	if (debugging) {//TODO: move hard coded values into GUI
+		ofPushStyle();
 
 		//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);  // note that the depth texture is RAW so may appear dark
 																		   // Color is at 1920x1080 instead of 512x424 so we should fix aspect ratio
@@ -508,32 +485,53 @@ void ofApp::draw(){
 		//TODO: add debug instrcutions gui & text
 		// change color settings
 		// set mode to debugging
+		ofSetColor(230);	//TODO: move hard coded values into GUI
+		ofDrawBitmapString(currentModeStr + "\n\nSpacebar to reset. \nKeys 1-4 to change mode.", 10, 20);//TODO: move hard coded values into GUI
+
+		ofPopStyle();
 	}
 	if (debugging || drawBodyIndex) {
+		ofPushStyle();
+
 		ofSetColor(indexColor);
 		kinect.getBodyIndexSource()->draw(0, 0, previewWidth, previewHeight);
+
+		ofPopStyle();
 	}
 
 	if (debugging || drawBones) {
+		ofPushStyle();
+
 		ofSetColor(skelColor);
 		kinect.getBodySource()->drawProjected(0, 0, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
-	}
-	ofPopStyle();
 
+		ofPopStyle();
+	}
+
+	ofPushStyle();
 	ofSetColor(fgColor);
 	for (unsigned int i = 0; i < particles.size(); i++) {
 		particles[i].draw();
 	}
+	ofPopStyle();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){ //TODO: move key presses into GUI
 	switch (key) {
 
+	case 'm':
+	case 'M':
+		gui->toggleMinified();
+		guiColor->toggleMinified();
+		break;
+
 	case 'h':
 	case 'H':
 		gui->toggleVisible();
+		gui->enableKeyEventCallbacks();
 		guiColor->toggleVisible();
+		guiColor->enableKeyEventCallbacks();
 		break;
 
 	default :
@@ -583,6 +581,8 @@ void ofApp::windowResized(int w, int h){
 	float depthMapScaleW = previewWidth / 512.0f;
 	float depthMapScaleH = previewHeight / 424.0f;
 	depthMapScale = ofVec3f(depthMapScaleW, depthMapScaleH, (depthMapScaleH + depthMapScaleW) / 2.0f);
+
+	resetGuiPositions();
 }
 
 //--------------------------------------------------------------
