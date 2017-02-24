@@ -31,7 +31,7 @@ class ofApp : public ofBaseApp{
 		void guiEvent(ofxUIEventArgs &e);
 		ofxUISuperCanvas *gui;
 		ofxUISuperCanvas *guiColor;
-		int currentLookBank, currentLook;
+		int currentLookBank, currentLook, gradientType;
 		bool lookChanged;
 		
 		particleMode currentMode;

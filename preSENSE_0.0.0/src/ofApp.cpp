@@ -95,6 +95,16 @@ void ofApp::setup() {
 	gui->addSlider("blue", 0.0, 255.0, &bgBlue);
 	gui->addSpacer();
 	//
+	// radio list for BG Gradient type
+	// OF_GRADIENT_LINEAR(0), OF_GRADIENT_CIRCULAR, OF_GRADIENT_BAR
+	gui->addLabel("gradients: ");
+	vector<string> gradsList;
+	gradsList.push_back("linear");
+	gradsList.push_back("circular");
+	gradsList.push_back("bar");
+	gui->addRadio("gradient", gradsList, OFX_UI_ORIENTATION_HORIZONTAL);
+	gui->addSpacer();
+	//
 	// Background Gradient Color
 	gui->addTextArea("text", "gradient color");
 	gui->addSlider("gradRed", 0.0, 255.0, &bgGradRed);
@@ -298,6 +308,14 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 	}
 
+	else if (nameStr == "gradient" || nameStr == "linear" || nameStr == "circular" || nameStr == "bar") {
+		// OF_GRADIENT_LINEAR(0), OF_GRADIENT_CIRCULAR, OF_GRADIENT_BAR
+		ofxUIRadio *radioGradient;
+		if (kind == OFX_UI_WIDGET_RADIO) radioGradient = (ofxUIRadio *)e.widget;
+		else radioGradient = (ofxUIRadio *)e.widget->getParent();
+		gradientType = radioGradient->getValue();	
+	}
+
 
 	else if (nameStr == "hardreset") {
 		resetParticles(true);
@@ -450,7 +468,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackgroundGradient(bgGradient, bgColor);
+	ofBackgroundGradient(bgGradient, bgColor, (ofGradientMode)gradientType);
 	
 	if(debugging && currentMode == PARTICLE_MODE_NEAREST_POINTS ){
 		ofPushStyle();
