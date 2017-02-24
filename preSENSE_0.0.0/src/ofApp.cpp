@@ -11,6 +11,12 @@ void ofApp::setup() {
 	resetParticles(true);
 
 	/////////////////////
+	// ribbons system
+	/////////////////////
+	usecamera = false;
+	pointsMax = 100; //TODO: move hard coded values into GUI
+
+	/////////////////////
 	// kinect object
 	/////////////////////
 	//TODO: only initialize necessary sources
@@ -35,8 +41,8 @@ void ofApp::setup() {
 	/////////////////////
 	// GUIS
 	/////////////////////
-	currentLookBank = 1;
-	currentLook = 1;
+	currentLookBank = 0;
+	currentLook = 0;
 	lookChanged = true; // forces GUI to load settings // TODO: Debug this
 	//
 	//------------
@@ -97,7 +103,7 @@ void ofApp::setup() {
 	//
 	// radio list for BG Gradient type
 	// OF_GRADIENT_LINEAR(0), OF_GRADIENT_CIRCULAR, OF_GRADIENT_BAR
-	gui->addLabel("gradients: ");
+	gui->addLabel("gradient: ");
 	vector<string> gradsList;
 	gradsList.push_back("linear");
 	gradsList.push_back("circular");
@@ -116,6 +122,16 @@ void ofApp::setup() {
 	ofxUIToggle *toggleFullScreen = gui->addToggle("fullscreen", false);
 	toggleFullScreen->bindToKey('f');
 	toggleFullScreen->bindToKey('F');
+	//
+	// draw ribbons toggle
+	ofxUIToggle* toggleRibbons = gui->addToggle("ribbons", &drawRibbons);
+	toggleRibbons->bindToKey('o');
+	toggleRibbons->bindToKey('O');
+	//
+	// draw particles toggle
+	ofxUIToggle* toggleParticles = gui->addToggle("particles", &drawParticles);
+	toggleParticles->bindToKey('p');
+	toggleParticles->bindToKey('P');
 	//
 	// particle modes
 	gui->addLabel("particle mode: ");
@@ -225,6 +241,7 @@ void ofApp::setup() {
 	///////////////////////
 	ofSetFrameRate(60);//TODO: put this into the GUI
 	ofSetVerticalSync(true);
+	gradientType = 0;
 }
 
 //--------------------------------------------------------------
@@ -257,63 +274,138 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 		guiColor->saveSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
 	}
 
-	else if (nameStr == "bank" || nameStr == "!" || nameStr == "@" || nameStr == "#" || nameStr == "$") {
-		ofxUIRadio *radioLookBank;
-		if (kind == OFX_UI_WIDGET_RADIO) radioLookBank = (ofxUIRadio *)e.widget;
-		else radioLookBank = (ofxUIRadio *)e.widget->getParent();
-		currentLookBank = radioLookBank->getValue();
+	else if (nameStr == "bank" || nameStr == "!" || nameStr == "@" || nameStr == "#" || nameStr == "$"
+		|| nameStr == "%" || nameStr == "^" || nameStr == "&" || nameStr == "*") {
+		if (kind == OFX_UI_WIDGET_RADIO) {
+			ofxUIRadio *radioLookBank;
+			radioLookBank = (ofxUIRadio *)e.widget;
+			currentLookBank = radioLookBank->getValue();
+		}
+		else {
+			ofxUIToggle *toggleLookBank = (ofxUIToggle *)e.widget;
+			if (toggleLookBank->getValue()) {
+				switch (ofToChar(toggleLookBank->getName())) {
+				case '!':
+					currentLookBank = 0;
+					break;
+				case '@':
+					currentLookBank = 1;
+					break;
+				case '#':
+					currentLookBank = 2;
+					break;
+				case '$':
+					currentLookBank = 3;
+					break;
+				case '%':
+					currentLookBank = 4;
+					break;
+				case '^':
+					currentLookBank = 5;
+					break;
+				case '&':
+					currentLookBank = 6;
+					break;
+				case '*':
+					currentLookBank = 7;
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
 
 		//lookChanged = true; // don't change look until a look is selected from this bank
 	}
 
 	else if (nameStr == "look" || nameStr == "1" || nameStr == "2" || nameStr == "3" || nameStr == "4") {
-		ofxUIRadio *radioLook;
-		if (kind == OFX_UI_WIDGET_RADIO) radioLook = (ofxUIRadio *)e.widget;
-		else radioLook = (ofxUIRadio *)e.widget->getParent();
-		currentLook = radioLook->getValue();
+
+		if (kind == OFX_UI_WIDGET_RADIO) {
+			ofxUIRadio *radioLook;
+			radioLook = (ofxUIRadio *)e.widget;
+			currentLook = radioLook->getValue();
+		}
+		else {
+			ofxUIToggle *toggleLook = (ofxUIToggle *)e.widget;
+			if (toggleLook->getValue()) {
+				currentLook = ofToInt(toggleLook->getName()) - 1;
+			}
+		}
 
 		lookChanged = true;
 	}
 
 	else if (nameStr == "particle mode" || nameStr == "a" || nameStr == "r" || nameStr == "n" || nameStr == "x") {
-		ofxUIRadio *radioParticleMode;
-		if (kind == OFX_UI_WIDGET_RADIO) radioParticleMode = (ofxUIRadio *)e.widget;
-		else radioParticleMode = (ofxUIRadio *)e.widget->getParent();
-		switch (radioParticleMode->getValue()) {
-
-		case 0: // a
-			currentMode = PARTICLE_MODE_ATTRACT;
-			currentModeStr = "a - PARTICLE_MODE_ATTRACT: attracts to mouse";
-			break;
-
-		case 1: // r
-			currentMode = PARTICLE_MODE_REPEL;
-			currentModeStr = "r - PARTICLE_MODE_REPEL: repels from mouse";
-			break;
-
-		case 2: // n
-			currentMode = PARTICLE_MODE_NEAREST_POINTS;
-			currentModeStr = "n - PARTICLE_MODE_NEAREST_POINTS: hold 'n' to disable force";
-			break;
-
-		case 3: // x
-			currentMode = PARTICLE_MODE_NOISE;
-			currentModeStr = "x - PARTICLE_MODE_NOISE: snow particle simulation";
-			resetParticles(false);
-			break;
-
-		default:
-			break;
+		if (kind == OFX_UI_WIDGET_RADIO) {
+			ofxUIRadio *radioParticleMode;
+			radioParticleMode = (ofxUIRadio *)e.widget;
+			currentMode = (enum particleMode)radioParticleMode->getValue();
 		}
+		else {
+			ofxUIToggle *toggleParticleMode = (ofxUIToggle *)e.widget;
+			if (toggleParticleMode->getValue()) {
+				switch (ofToChar(toggleParticleMode->getName())) {
 
+				case 'a': // a
+					currentMode = PARTICLE_MODE_ATTRACT;
+					currentModeStr = "a - PARTICLE_MODE_ATTRACT: attracts to mouse";
+					break;
+
+				case 'r': // r
+					currentMode = PARTICLE_MODE_REPEL;
+					currentModeStr = "r - PARTICLE_MODE_REPEL: repels from mouse";
+					break;
+
+				case 'n': // n
+					currentMode = PARTICLE_MODE_NEAREST_POINTS;
+					currentModeStr = "n - PARTICLE_MODE_NEAREST_POINTS: hold 'n' to disable force";
+					break;
+
+				case 'x': // x
+					currentMode = PARTICLE_MODE_NOISE;
+					currentModeStr = "x - PARTICLE_MODE_NOISE: snow particle simulation";
+					resetParticles(false);
+					break;
+
+				default:
+					break;
+				}
+
+			}
+		}
 	}
 
 	else if (nameStr == "gradient" || nameStr == "linear" || nameStr == "circular" || nameStr == "bar") {
 		// OF_GRADIENT_LINEAR(0), OF_GRADIENT_CIRCULAR, OF_GRADIENT_BAR
-		ofxUIRadio *radioGradient;
-		if (kind == OFX_UI_WIDGET_RADIO) radioGradient = (ofxUIRadio *)e.widget;
-		else radioGradient = (ofxUIRadio *)e.widget->getParent();
-		gradientType = radioGradient->getValue();	
+		if (kind == OFX_UI_WIDGET_RADIO) {
+			ofxUIRadio *radioGradient;
+			radioGradient = (ofxUIRadio *)e.widget;
+			gradientType = radioGradient->getValue();
+		} else {
+			ofxUIToggle *toggleGradient;
+			toggleGradient = (ofxUIToggle *)e.widget;
+			if (toggleGradient->getValue()) {
+				switch (ofToChar(toggleGradient->getName().substr(0, 1))) {
+
+				case 'l': // linear
+					gradientType = 0;
+					break;
+
+				case 'c': // circular
+					gradientType = 1;
+					break;
+
+				case 'b': // bar
+					gradientType = 2;
+					break;
+
+				default:
+					break;
+				}
+
+			}
+		}
 	}
 
 
@@ -344,6 +436,154 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 
 	}
 	//*/
+
+	else if (nameStr == "foreground blend mode" || nameStr == "i0" || nameStr == "iA" || 
+		nameStr == "i+" || nameStr == "i-" || nameStr == "i*" || nameStr == "iS") {
+		if (nameStr == "foreground blend mode") {
+			ofxUIRadio *radio;
+			radio = (ofxUIRadio *)e.widget;
+			fgBlendMode = radio->getValue();
+		}
+		else {
+			ofxUIToggle *toggle;
+			toggle = (ofxUIToggle *)e.widget;
+			if (toggle->getValue()) {
+				switch (ofToChar(toggle->getName().substr(1, 1))) {
+
+				case '0': // 
+					fgBlendMode = 0;
+					break;
+
+				case 'A': // 
+					fgBlendMode = 1;
+					break;
+
+				case '+': // 
+					fgBlendMode = 2;
+					break;
+
+				case '-': // 
+					fgBlendMode = 3;
+					break;
+
+				case '*': // 
+					fgBlendMode = 4;
+					break;
+
+				case 'S': // 
+					fgBlendMode = 6;
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+	}
+	else if (nameStr == "index color mode" || 
+		nameStr == "PSYCHEDELIC_SHADES" || nameStr == "PSYCHEDELIC" || 
+		nameStr == "RAINBOW" || nameStr == "CYCLIC_RAINBOW" || nameStr == "BLUES" || 
+		nameStr == "BLUES_INV" || nameStr == "GREY" || nameStr == "STATUS") {
+		ofxUIRadio *radio;
+		if (nameStr == "index color mode") {
+			radio = (ofxUIRadio *)e.widget;
+		}
+		else {
+			radio = (ofxUIRadio *)e.widget->getParent();
+
+		}
+		indexColorMode = radio->getValue();
+		//kinect.setDepthColoring((DepthColoring)indexColorMode); // TODO: is this even possible with ofxKFW2?
+	}
+	else if (nameStr == "index blend mode" || nameStr == "d0" || nameStr == "dA" || nameStr == "d+" || nameStr == "d-" || nameStr == "d*" || nameStr == "dS") {
+		if (nameStr == "index blend mode") {
+			ofxUIRadio *radio;
+			radio = (ofxUIRadio *)e.widget;
+			indexBlendMode = radio->getValue();
+		}
+		else {
+			ofxUIToggle *toggle;
+			toggle = (ofxUIToggle *)e.widget;
+			if (toggle->getValue()) {
+				switch (ofToChar(toggle->getName().substr(1, 1))) {
+
+				case '0': // 
+					indexBlendMode = 0;
+					break;
+
+				case 'A': // 
+					indexBlendMode = 1;
+					break;
+
+				case '+': // 
+					indexBlendMode = 2;
+					break;
+
+				case '-': // 
+					indexBlendMode = 3;
+					break;
+
+				case '*': // 
+					indexBlendMode = 4;
+					break;
+
+				case 'S': // 
+					indexBlendMode = 6;
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+
+	}
+	else if (nameStr == "skeleton blend mode" || nameStr == "s0" || nameStr == "sA" || nameStr == "s+" || nameStr == "s-" || nameStr == "s*" || nameStr == "sS") {
+
+		if (nameStr == "skeleton blend mode") {
+			ofxUIRadio *radio;	
+			radio = (ofxUIRadio *)e.widget;
+			skelBlendMode = radio->getValue();
+		}
+		else {
+			ofxUIToggle *toggle;
+			toggle = (ofxUIToggle *)e.widget;
+			if (toggle->getValue()) {
+				switch (ofToChar(toggle->getName().substr(1, 1))) {
+
+				case '0': // 
+					skelBlendMode = 0;
+					break;
+
+				case 'A': // 
+					skelBlendMode = 1;
+					break;
+
+				case '+': // 
+					skelBlendMode = 2;
+					break;
+
+				case '-': // 
+					skelBlendMode = 3;
+					break;
+
+				case '*': // 
+					skelBlendMode = 4;
+					break;
+
+				case 'S': // 
+					skelBlendMode = 6;
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+
+	}
+
+
 	else {
 		// default
 		noCallbackForWidget = true;
@@ -390,7 +630,7 @@ void ofApp::update(){
 	bgColor = ofColor(bgRed, bgGreen, bgBlue);
 	bgGradient = ofColor(bgGradRed, bgGradGreen, bgGradBlue);
 
-	indexColor = ofColor(indexRed, indexBlue, indexGreen);
+	indexColor = ofColor(indexRed, indexBlue, indexGreen, indexAlpha);
 	skelColor = ofColor(skelRed, skelGreen, skelBlue, skelAlpha);
 
 
@@ -404,7 +644,7 @@ void ofApp::update(){
 	// Kinect
 	///////////////////
 	kinect.update();
-
+	//
 	//Getting joint positions (skeleton tracking)
 	{
 		auto bodies = kinect.getBodySource()->getBodies();
@@ -424,7 +664,7 @@ void ofApp::update(){
 			}
 		}
 	}
-
+	//
 	//Getting bones (connected joints)
 	{
 		// Note that for this we need a reference of which joints are connected to each other.
@@ -432,36 +672,97 @@ void ofApp::update(){
 		auto bodies = kinect.getBodySource()->getBodies();
 		auto boneAtlas = ofxKinectForWindows2::Data::Body::getBonesAtlas();
 
+		ribbons.resize(bodies.size());
+		int bodyIDX = 0;
+		vector <float> bodyDepths;
 		for (auto body : bodies) {
-			for (auto bone : boneAtlas) {
-				auto firstJointInBone = body.joints[bone.first];
-				auto secondJointInBone = body.joints[bone.second];
+			if (body.tracked) {
+				bodyDepths.push_back(body.joints[JointType_SpineBase].getPositionInWorld().z);
+				ribbons[bodyIDX].resize(boneAtlas.size());
+				int boneIDX = 0; // each bone gets a ribbon (for now)
+				for (auto bone : boneAtlas) {
 
-				//TODO: now do something with the joints
+					auto firstJointInBone = body.joints[bone.first];
+					auto secondJointInBone = body.joints[bone.second];
+					ofVec3f firstJPos = firstJointInBone.getPositionInDepthMap();
+					ofVec3f secondJPos = secondJointInBone.getPositionInDepthMap();
+
+					firstJPos.z = firstJointInBone.getPosition().z;
+					secondJPos.z = secondJointInBone.getPosition().z;
+					firstJPos *= depthMapScale;
+					secondJPos *= depthMapScale;
+
+					//store joint positions for ribbon drawing later on
+					if (ribbons[bodyIDX][boneIDX].size() <= pointsMax - 2) {
+						ribbons[bodyIDX][boneIDX].push_back(firstJPos);
+						ribbons[bodyIDX][boneIDX].push_back(secondJPos);
+					}
+					else {
+						for (int i = 0; i < pointsMax - 2; i += 2) {
+							ribbons[bodyIDX][boneIDX][i] = ribbons[bodyIDX][boneIDX][i + 2];
+							ribbons[bodyIDX][boneIDX][i + 1] = ribbons[bodyIDX][boneIDX][i + 3];
+						}
+						ribbons[bodyIDX][boneIDX][pointsMax - 2] = firstJPos;
+						ribbons[bodyIDX][boneIDX][pointsMax - 1] = secondJPos;
+					}
+					boneIDX += 1;
+				}
+			}
+			else {
+				ribbons[bodyIDX].resize(0);
+				bodyDepths.push_back(-1);
+			}
+			bodyIDX += 1;
+		}
+		//cout << "ofApp :: update () -- bodyDepthOrder = " + ofToString(bodyDepthOrder) << endl;
+		//cout << "ofApp :: update () -- bodyDepths = " + ofToString(bodyDepths) << endl;
+		// TODO: get / create a depth-sorted version of this list
+		bodyDepthOrder.clear();
+		for (int i = 0; i < bodyDepths.size(); i++) {
+			float depth = bodyDepths[i];
+			if (bodyDepthOrder.size() == 0) {
+				bodyDepthOrder.push_back(i);
+			}
+			else if (depth > bodyDepthOrder.back()) {
+				bodyDepthOrder.push_back(i);
+			}
+			else if (depth < bodyDepthOrder.front()) {
+				bodyDepthOrder.insert(bodyDepthOrder.begin(), i);
+			}
+			else {
+				for (int idx = 1; idx < bodyDepthOrder.size(); idx++) {
+					if (depth < bodyDepthOrder[idx]) {
+						bodyDepthOrder.insert(bodyDepthOrder.begin() + idx, i);
+						break;
+					}
+				}
 			}
 		}
+		//cout << "ofApp :: update () -- bodyDepthOrder (sorted) = " + ofToString(bodyDepthOrder) << endl;
 	}
 
 	//////////////////
 	// Particles
 	///////////////////
-	for(unsigned int i = 0; i < particles.size(); i++){
-		particles[i].setMode(currentMode);
-		particles[i].update();
-	}
-
-	attractPoints = hands;
-	if (attractPoints.size() != attractPointsWithMovement.size()) {
-		attractPointsWithMovement.resize(attractPoints.size());
-		attractionHandID = ofRandom(hands.size());
-		resetParticles();
-	}
-
-	//lets add a bit of movement to the attract points
-	if (attractPoints.size() > 0) {
-		for (unsigned int i = 0; i < attractPointsWithMovement.size(); i++) {
-			attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
-			attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
+	if (drawParticles) {
+		for (unsigned int i = 0; i < particles.size(); i++) {
+			particles[i].setMode(currentMode);
+			particles[i].update();
+		}
+		//
+		attractPoints = hands;
+		if (attractPoints.size() != attractPointsWithMovement.size()) {
+			attractPointsWithMovement.resize(attractPoints.size());
+			attractionHandID = ofRandom(hands.size());
+			resetParticles();
+		}
+		//
+		//lets add a bit of movement to the attract points
+		if (attractPoints.size() > 0) {
+			for (unsigned int i = 0; i < attractPointsWithMovement.size(); i++) {
+				attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
+				attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
+			}
 		}
 	}
 }
@@ -470,23 +771,96 @@ void ofApp::update(){
 void ofApp::draw(){
 	ofBackgroundGradient(bgGradient, bgColor, (ofGradientMode)gradientType);
 	
-	if(debugging && currentMode == PARTICLE_MODE_NEAREST_POINTS ){
+	////////////////
+	// ribbons
+	////////////////
+	//
+	//*
+	if (drawRibbons) {
+
+		//if we're using the camera, start it.
+		//everything that you draw between begin()/end() shows up from the view of the camera
+		if (usecamera) {
+			camera.begin();
+		}
 		ofPushStyle();
-		ofSetColor(190);
-		if (attractPoints.size() > 0) {
-			for (unsigned int i = 0; i < attractPoints.size(); i++) {
-				ofNoFill();
-				ofDrawCircle(attractPointsWithMovement[i], 10);//TODO: move hard coded values into GUI
-				ofFill();
-				ofDrawCircle(attractPointsWithMovement[i], 4);//TODO: move hard coded values into GUI
+		if (debugging) {
+
+			ofSetColor(fgColor);
+			ofEnableBlendMode((ofBlendMode)fgBlendMode);
+
+			//do the same thing from the first example...
+			ofMesh mesh;
+			mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+			for (unsigned int i = 1; i < points.size(); i++) {
+
+				//find this point and the next point
+				ofVec3f thisPoint = points[i - 1];
+				ofVec3f nextPoint = points[i];
+
+				//get the direction from one to the next.
+				//the ribbon should fan out from this direction
+				ofVec3f direction = (nextPoint - thisPoint);
+
+				//get the distance from one point to the next
+				float distance = direction.length();
+
+				//get the normalized direction. normalized vectors always have a length of one
+				//and are really useful for representing directions as opposed to something with length
+				ofVec3f unitDirection = direction.getNormalized();
+
+				//find both directions to the left and to the right
+				ofVec3f toTheLeft = unitDirection.getRotated(-90, ofVec3f(0, 0, 1));
+				ofVec3f toTheRight = unitDirection.getRotated(90, ofVec3f(0, 0, 1));
+
+				//use the map function to determine the distance.
+				//the longer the distance, the narrower the line.
+				//this makes it look a bit like brush strokes
+				float thickness = ofMap(distance, 0, 60, 20, 2, true);//TODO: put these constants into the GUI
+																	  //TODO: have tail shrink towards end so it disappears
+
+																	  //calculate the points to the left and to the right
+																	  //by extending the current point in the direction of left/right by the length
+				ofVec3f leftPoint = thisPoint + toTheLeft*thickness;
+				ofVec3f rightPoint = thisPoint + toTheRight*thickness;
+
+				//add these points to the triangle strip
+				mesh.addVertex(ofVec3f(leftPoint.x, leftPoint.y, leftPoint.z));
+				mesh.addVertex(ofVec3f(rightPoint.x, rightPoint.y, rightPoint.z));
+			}
+
+			//end the shape
+			mesh.draw();
+		}
+		ofPopStyle();
+		//
+		// TODO: sort so foremost bodies appear foremost
+		// draw ribbons
+		for (unsigned int bodyIDX = 0; bodyIDX < bodyDepthOrder.size(); bodyIDX++) {
+			ofSetColor(fgColor / (bodyDepthOrder.size() - bodyIDX));
+			ofEnableBlendMode((ofBlendMode)fgBlendMode);
+			for (unsigned int boneIDX = 0; boneIDX < ribbons[bodyDepthOrder[bodyIDX]].size(); boneIDX++) {
+				ofMesh meshRibbon;
+				meshRibbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+				for (unsigned int point = 0; point < ribbons[bodyDepthOrder[bodyIDX]][boneIDX].size(); point++) {
+					//add each joint to the triangle strip
+					meshRibbon.addVertex(ribbons[bodyDepthOrder[bodyIDX]][boneIDX][point]);
+				}
+
+				//end the shape
+				meshRibbon.draw();
 			}
 		}
 		ofPopStyle();
+		//
+		//if we're using the camera, take it away
+		if (usecamera) {
+			camera.end();
+		}
 	}
+	//*/
 
-
-	//TODO: move these hardcoded numbers into GUI
-	ofEnableBlendMode(OF_BLENDMODE_SCREEN);//TODO: move hard coded values into GUI
+	ofEnableBlendMode((ofBlendMode)skelBlendMode);
 	if (debugging) {//TODO: move hard coded values into GUI
 		ofPushStyle();
 
@@ -508,10 +882,14 @@ void ofApp::draw(){
 
 		ofPopStyle();
 	}
+
+	//*
+
 	if (debugging || drawBodyIndex) {
 		ofPushStyle();
 
 		ofSetColor(indexColor);
+		ofEnableBlendMode((ofBlendMode)indexBlendMode);
 		kinect.getBodyIndexSource()->draw(0, 0, previewWidth, previewHeight);
 
 		ofPopStyle();
@@ -521,22 +899,48 @@ void ofApp::draw(){
 		ofPushStyle();
 
 		ofSetColor(skelColor);
+		ofEnableBlendMode((ofBlendMode)skelBlendMode);
 		kinect.getBodySource()->drawProjected(0, 0, previewWidth, previewHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
 
 		ofPopStyle();
 	}
 
-	ofPushStyle();
-	ofSetColor(fgColor);
-	for (unsigned int i = 0; i < particles.size(); i++) {
-		particles[i].draw();
+	if (drawParticles) {
+		if (debugging && currentMode == PARTICLE_MODE_NEAREST_POINTS) {
+			ofPushStyle();
+			ofSetColor(skelColor);
+			ofEnableBlendMode((ofBlendMode)skelBlendMode);
+
+			if (attractPoints.size() > 0) {
+				for (unsigned int i = 0; i < attractPoints.size(); i++) {
+					ofNoFill();
+					ofDrawCircle(attractPointsWithMovement[i], 10);//TODO: move hard coded values into GUI
+					ofFill();
+					ofDrawCircle(attractPointsWithMovement[i], 4);//TODO: move hard coded values into GUI
+				}
+			}
+			ofPopStyle();
+		}
+
+		ofPushStyle();
+		ofSetColor(fgColor);
+		ofEnableBlendMode((ofBlendMode)fgBlendMode);
+		for (unsigned int i = 0; i < particles.size(); i++) {
+			particles[i].draw();
+		}
+		ofPopStyle();
 	}
-	ofPopStyle();
+	//*/
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){ //TODO: move key presses into GUI
 	switch (key) {
+
+	case ' ':
+		//hitting space key swaps the camera view
+		usecamera = !usecamera;
+		break;
 
 	case 'm':
 	case 'M':
@@ -564,6 +968,41 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
+	if (drawRibbons) {
+		//*
+		//if we are using the camera, the mouse moving should rotate it around the whole sculpture
+		if (usecamera) {
+			float rotateAmount = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 360);//TODO: put this into the GUI
+			ofVec3f furthestPoint;
+			if (points.size() > 0) {
+				furthestPoint = points[0];
+			}
+			else
+			{
+				furthestPoint = ofVec3f(x, y, 0);
+			}
+
+			ofVec3f directionToFurthestPoint = (furthestPoint - center);
+			ofVec3f directionToFurthestPointRotated = directionToFurthestPoint.getRotated(rotateAmount, ofVec3f(0, 1, 0));
+			camera.setPosition(center + directionToFurthestPointRotated);
+			camera.lookAt(center);
+		}
+		//otherwise add points like before
+		else {
+			ofVec3f mousePoint(x, y, 0);
+			if (points.size() < pointsMax) {
+				points.push_back(mousePoint);
+			}
+			else {
+				for (int i = 0; i < pointsMax - 1; i++) {
+					points[i] = points[i + 1];
+				}
+				points[pointsMax - 1] = mousePoint;
+			}
+		}
+		//*/
+
+	}
 
 }
 

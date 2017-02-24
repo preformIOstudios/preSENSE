@@ -34,16 +34,27 @@ class ofApp : public ofBaseApp{
 		int currentLookBank, currentLook, gradientType;
 		bool lookChanged;
 		
+		// particles
 		particleMode currentMode;
 		string currentModeStr; 
-
 		vector <demoParticle> particles;
 		vector <ofPoint> hands;
 		int attractionHandID;
 		vector <ofPoint> attractPoints;
 		vector <ofPoint> attractPointsWithMovement;
 
-		//kinect device reference
+		// ribbons
+		///////////////
+		vector<ofVec3f> points; //this holds all of our points
+		vector < vector < vector <ofVec3f> > > ribbons;
+		int pointsMax;		
+		ofVec3f center; //this keeps track of the center of all the points
+		ofCamera camera; //our camera objects for looking at the scene from multiple perspectives
+		bool usecamera; //if usecamera is true, we'll turn on the camera view
+		vector <int> bodyDepthOrder;
+
+
+		// kinect device reference
 		ofxKFW2::Device kinect;
 
 private:
@@ -56,7 +67,7 @@ private:
 	float previewScaleH;
 	ofVec3f depthMapScale;
 	int drawFrameRate;
-	bool drawBodyIndex, drawMirrored, drawBones;
+	bool drawBodyIndex, drawParticles, drawRibbons, drawMirrored, drawBones;
 	ofColor bgColor;
 	float bgRed, bgGreen, bgBlue;
 	ofColor bgGradient;
@@ -67,5 +78,5 @@ private:
 	float indexRed, indexGreen, indexBlue, indexAlpha;
 	ofColor skelColor;
 	float skelRed, skelGreen, skelBlue, skelAlpha;
-
+	int fgBlendMode, indexColorMode, indexBlendMode, skelBlendMode;
 };
