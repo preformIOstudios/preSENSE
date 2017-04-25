@@ -26,6 +26,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		// guis
 		void reloadLook();
 		void resetGuiPositions();
 		void guiEvent(ofxUIEventArgs &e);
@@ -33,6 +34,7 @@ class ofApp : public ofBaseApp{
 		ofxUISuperCanvas *guiColor;
 		int currentLookBank, currentLook, gradientType;
 		bool lookChanged;
+		ofImage screenshot;
 		
 		// particles
 		particleMode currentMode;

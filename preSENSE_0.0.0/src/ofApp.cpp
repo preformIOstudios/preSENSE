@@ -170,6 +170,10 @@ void ofApp::setup() {
 	buttonReset->bindToKey('R');
 	gui->addSpacer();
 	//
+	// take screenshot
+	ofxUILabelButton *buttonScreenshot = gui->addLabelButton("take screenshot", false);
+	buttonScreenshot->bindToKey('C');
+	//
 	// save Settings
 	ofxUILabelButton *buttonSave = gui->addLabelButton("save main settings", false);
 	buttonSave->bindToKey('S');
@@ -267,6 +271,20 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 		ofSetFullscreen(((ofxUIToggle *)e.widget)->getValue());
 	}
 
+	else if (nameStr == "take screenshot") {
+		screenshot.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+		screenshot.save(
+			"screenshot_" + 
+			ofToString(currentLookBank) + ofToString(currentLook) + "_" +
+			ofToString(ofGetYear()) + ofToString(ofGetMonth()) + ofToString(ofGetDay()) + "_" +
+			ofToString(ofGetHours()) + ofToString(ofGetMinutes()) + ofToString(ofGetSeconds()) +
+			".jpg"
+
+			,
+
+			OF_IMAGE_QUALITY_BEST
+		);
+	}
 	else if (nameStr == "save main settings") {
 		gui->saveSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
 	}
