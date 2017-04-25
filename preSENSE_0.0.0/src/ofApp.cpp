@@ -744,25 +744,23 @@ void ofApp::update(){
 	//////////////////
 	// Particles
 	///////////////////
-	if (drawParticles) {
-		for (unsigned int i = 0; i < particles.size(); i++) {
-			particles[i].setMode(currentMode);
-			particles[i].update();
-		}
-		//
-		attractPoints = hands;
-		if (attractPoints.size() != attractPointsWithMovement.size()) {
-			attractPointsWithMovement.resize(attractPoints.size());
-			attractionHandID = ofRandom(hands.size());
-			resetParticles();
-		}
-		//
-		//lets add a bit of movement to the attract points
-		if (attractPoints.size() > 0) {
-			for (unsigned int i = 0; i < attractPointsWithMovement.size(); i++) {
-				attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
-				attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
-			}
+	for (unsigned int i = 0; i < particles.size(); i++) {
+		particles[i].setMode(currentMode);
+		particles[i].update();
+	}
+	//
+	attractPoints = hands;
+	if (attractPoints.size() != attractPointsWithMovement.size()) {
+		attractPointsWithMovement.resize(attractPoints.size());
+		attractionHandID = ofRandom(hands.size());
+		resetParticles();
+	}
+	//
+	//lets add a bit of movement to the attract points
+	if (attractPoints.size() > 0) {
+		for (unsigned int i = 0; i < attractPointsWithMovement.size(); i++) {
+			attractPointsWithMovement[i].x = attractPoints[i].x + ofSignedNoise(i * 10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
+			attractPointsWithMovement[i].y = attractPoints[i].y + ofSignedNoise(i * -10, ofGetElapsedTimef() * 0.7) * 12.0;//TODO: move hard coded values into GUI
 		}
 	}
 }
