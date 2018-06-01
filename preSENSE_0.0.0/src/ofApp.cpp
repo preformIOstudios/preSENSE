@@ -235,6 +235,11 @@ void ofApp::setup() {
 	//guiColor->addSlider("skel alpha", 0.0, 255.0, &skelAlpha);
 	//guiColor->addSpacer();
 	//
+	guiColor->addLabel("particle settings", OFX_UI_FONT_MEDIUM);
+	guiColor->addSlider("r min", 0.0, 255.0, &partRmin);
+	guiColor->addSlider("r max", 0.0, 255.0, &partRmax);
+	guiColor->addSpacer();
+	//
 	guiColor->addLabel("transition settings", OFX_UI_FONT_MEDIUM);
 	guiColor->addSlider("seconds", 0.0, 30.0, &transDuration);
 	vector< string > vtransEaseTypes; vtransEaseTypes.push_back("in"); vtransEaseTypes.push_back("out"); vtransEaseTypes.push_back("both");

@@ -20,21 +20,24 @@ void demoParticle::setAttractPoint(ofPoint * attractP) {
 	attractPoint = attractP;
 }
 //------------------------------------------------------------------
-void demoParticle::reset(bool posReset){
+void demoParticle::reset(bool posReset) {
+	reset(posReset, 0.5, 2.0, 3.9, 10000);
+}
+void demoParticle::reset(bool posReset, float _Rmin, float _Rmax, float _velRange, float _uniqueValRange) {
 	//the unique val allows us to set properties slightly differently for each particle
-	uniqueVal = ofRandom(-10000, 10000); //TODO: move hard coded values into GUI
+	uniqueVal = ofRandom(-_uniqueValRange, _uniqueValRange); //TODO: move value into GUI
 	
 	if (posReset) {
 		pos.x = ofRandomWidth(); 
 		pos.y = ofRandomHeight();
 	}
 	
-	vel.x = ofRandom(-3.9, 3.9); //TODO: move hard coded values into GUI
-	vel.y = ofRandom(-3.9, 3.9); //TODO: move hard coded values into GUI
+	vel.x = ofRandom(-_velRange, _velRange); //TODO: move value into GUI
+	vel.y = ofRandom(-_velRange, _velRange); //TODO: move value into GUI
 	
 	frc   = ofPoint(0,0,0);
 	
-	scale = ofRandom(0.5, 1.0);//TODO: move hard coded values into GUI
+	scale = ofRandom(_Rmin, _Rmax);//TODO: move value into GUI
 	
 	if( mode == PARTICLE_MODE_NOISE ){
 		drag  = ofRandom(0.97, 0.99);//TODO: move hard coded values into GUI
@@ -186,6 +189,6 @@ void demoParticle::update(){
 
 //------------------------------------------------------------------
 void demoParticle::draw(){		
-	ofDrawCircle(pos.x, pos.y, scale * 4.0);//TODO: move hard coded values into GUI
+	ofDrawCircle(pos.x, pos.y, scale);
 }
 
