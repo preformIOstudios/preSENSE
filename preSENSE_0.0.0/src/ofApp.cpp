@@ -149,7 +149,7 @@ void ofApp::setup() {
 	toggleIndex->bindToKey('I');
 	//
 	// draw mirrored
-	ofxUIToggle* mirrorImageToggle = gui->addToggle("mirror image", &drawMirrored);
+	ofxUIToggle* mirrorImageToggle = gui->addToggle("mirror image", &drawMirrored_to);
 	mirrorImageToggle->bindToKey('m');
 	mirrorImageToggle->bindToKey('M');
 	//
@@ -248,7 +248,7 @@ void ofApp::setup() {
 	// transitions
 	guiColor->addLabel("transition settings", OFX_UI_FONT_MEDIUM);
 	guiColor->addSlider("seconds", 0.0, 30.0, &transDuration);
-	vector< string > vtransEaseTypes; vtransEaseTypes.push_back("in"); vtransEaseTypes.push_back("out"); vtransEaseTypes.push_back("both");
+	vector< string > vtransEaseTypes; vtransEaseTypes.push_back("in"); vtransEaseTypes.push_back("out"); vtransEaseTypes.push_back("both"); // TODO: hook this up in gui events
 	ofxUIRadio *radioTransEase = guiColor->addRadio("ease", vtransEaseTypes, OFX_UI_ORIENTATION_HORIZONTAL);
 	guiColor->addSpacer();
 	//
@@ -395,6 +395,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 			}
 		}
 
+		// TODO: could put up a similar flag for when draw modes change
 		if (currentLook != _lookStash || lookBankChanged) {
 			lookChanged = true;
 		}
@@ -478,8 +479,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	}
 
 	else if (nameStr == "mirror image") {
-		// do nothing. drawMirrored bool gets used in the draw loop
-		//kinect.setsetMirror(drawMirrored); // TODO: this
+		// do nothing. drawMirrored_to bool gets used in the draw loop
+		//kinect.setMirror(drawMirrored_to); // TODO: this
 	}
 
 	/*
@@ -487,7 +488,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	else if (nameStr == "kinected") {
 		if (kinected && !kinectsInitialized) // || ofGetKeyPressed('k')?
 		{
-			kinectsInitialized = kinectInterface->setupKinects(drawMirrored);
+			kinectsInitialized = kinectInterface->setupKinects(drawMirrored_to);
 			kinected = kinectsInitialized;
 		}
 		else if (!kinected)
@@ -735,6 +736,8 @@ void ofApp::update(){
 	bgGradient = ofColor(bgGradRed, bgGradGreen, bgGradBlue);
 	fgColor = ofColor(fgRed, fgGreen, fgBlue, fgAlpha);
 	indexColor = ofColor(indexRed, indexBlue, indexGreen, indexAlpha);
+
+	// TODO: clean out skelColor -- has no effect whatsoever
 	skelColor = ofColor(skelRed, skelGreen, skelBlue, skelAlpha);
 
 
