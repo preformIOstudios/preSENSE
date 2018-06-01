@@ -96,9 +96,9 @@ void ofApp::setup() {
 	//
 	// Background Color
 	gui->addTextArea("text", "background color");
-	gui->addSlider("red", 0.0, 255.0, &bgRed);
-	gui->addSlider("green", 0.0, 255.0, &bgGreen);
-	gui->addSlider("blue", 0.0, 255.0, &bgBlue);
+	gui->addSlider("red", 0.0, 255.0, &bgRed_to);
+	gui->addSlider("green", 0.0, 255.0, &bgGreen_to);
+	gui->addSlider("blue", 0.0, 255.0, &bgBlue_to);
 	gui->addSpacer();
 	//
 	// radio list for BG Gradient type
@@ -113,9 +113,9 @@ void ofApp::setup() {
 	//
 	// Background Gradient Color
 	gui->addTextArea("text", "gradient color");
-	gui->addSlider("gradRed", 0.0, 255.0, &bgGradRed);
-	gui->addSlider("gradGreen", 0.0, 255.0, &bgGradGreen);
-	gui->addSlider("gradBlue", 0.0, 255.0, &bgGradBlue);
+	gui->addSlider("gradRed", 0.0, 255.0, &bgGradRed_to);
+	gui->addSlider("gradGreen", 0.0, 255.0, &bgGradGreen_to);
+	gui->addSlider("gradBlue", 0.0, 255.0, &bgGradBlue_to);
 	gui->addSpacer();
 	//
 	// fullscreen toggle
@@ -266,8 +266,23 @@ void ofApp::resetGuiPositions() {
 }
 
 void ofApp::reloadLook() {
+	// save current values to "_from" variables ("_to" variables are handled by the GUI)
+	bgRed_from = bgRed; bgGreen_from = bgGreen; bgBlue_from = bgBlue;
+	bgGradRed_from = bgGradRed; bgGradGreen_from = bgGradGreen; bgGradBlue_from = bgGradBlue;
+
 	gui->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
 	guiColor->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
+
+	// setup transition variables
+	if (transDuration > 0) {
+		transSteps = 30.0 * transDuration;
+	}
+	else {
+		transSteps = 1.0;
+	}
+	transD = 1.0 / transSteps; // (amount to transtion each step)
+	transStatus = 0.0;
+
 	resetGuiPositions();
 }
 
@@ -277,6 +292,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 	bool noCallbackForWidget = false;
 	string nameStr = e.widget->getName();
 	int kind = e.widget->getKind();
+	int _lookStash = currentLook;
 
 	if (nameStr == "fullscreen") {
 		ofSetFullscreen(((ofxUIToggle *)e.widget)->getValue());
@@ -345,7 +361,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 			}
 		}
 
-		//lookChanged = true; // don't change look until a look is selected from this bank
+		lookBankChanged = true; // don't change look until a look is selected from this bank
 	}
 
 	else if (nameStr == "look" || nameStr == "1" || nameStr == "2" || nameStr == "3" || nameStr == "4") {
@@ -362,7 +378,9 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 			}
 		}
 
-		lookChanged = true;
+		if (currentLook != _lookStash || lookBankChanged) {
+			lookChanged = true;
+		}
 	}
 
 	else if (nameStr == "particle mode" || nameStr == "a" || nameStr == "r" || nameStr == "n" || nameStr == "x") {
@@ -656,6 +674,21 @@ void ofApp::resetParticles(bool posReset = false) {
 void ofApp::update(){
 
 	fgColor = ofColor(fgRed, fgGreen, fgBlue, fgAlpha);
+	// calculate colors based on blend between _to and _from values
+	// TODO: incorporate different ease types
+	// increment transition status
+	transStatus += transD;
+	// clamp transition status to 1
+	transStatus = MIN(1.0, transStatus);
+	// calc new bgColors
+	bgRed = bgRed_to * transStatus + bgRed_from * (1.0 - transStatus);
+	bgGreen = bgGreen_to * transStatus + bgGreen_from * (1.0 - transStatus);
+	bgBlue = bgBlue_to * transStatus + bgBlue_from * (1.0 - transStatus);
+	// calc new bgGradColors
+	bgGradRed = bgGradRed_to * transStatus + bgGradRed_from * (1.0 - transStatus);
+	bgGradGreen = bgGradGreen_to * transStatus + bgGradGreen_from * (1.0 - transStatus);
+	bgGradBlue = bgGradBlue_to * transStatus + bgGradBlue_from * (1.0 - transStatus);
+
 	bgColor = ofColor(bgRed, bgGreen, bgBlue);
 	bgGradient = ofColor(bgGradRed, bgGradGreen, bgGradBlue);
 

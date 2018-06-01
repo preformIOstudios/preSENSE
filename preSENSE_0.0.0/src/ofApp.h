@@ -33,9 +33,10 @@ class ofApp : public ofBaseApp{
 		ofxUISuperCanvas *gui;
 		ofxUISuperCanvas *guiColor;
 		int currentLookBank, currentLook, gradientType;
-		float transDuration;
+		float transDuration, transEase, transD, transSteps, transStatus;
 
 		bool lookChanged;
+		bool lookBankChanged;
 		ofImage screenshot;
 		
 		// particles
@@ -73,10 +74,16 @@ private:
 	ofVec3f depthMapScale;
 	int drawFrameRate;
 	bool drawBodyIndex, drawParticles, drawRibbons, drawMirrored, drawBones;
+
+	// bgColors
 	ofColor bgColor;
 	float bgRed, bgGreen, bgBlue;
 	ofColor bgGradient;
 	float bgGradRed, bgGradGreen, bgGradBlue;
+	float bgRed_to, bgGreen_to, bgBlue_to;
+	float bgGradRed_to, bgGradGreen_to, bgGradBlue_to;
+	float bgRed_from, bgGreen_from, bgBlue_from;
+	float bgGradRed_from, bgGradGreen_from, bgGradBlue_from;
 	ofColor fgColor;
 	float fgRed, fgGreen, fgBlue, fgAlpha;
 	ofColor indexColor;
