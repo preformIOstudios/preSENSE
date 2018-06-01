@@ -216,8 +216,8 @@ void ofApp::setup() {
 	guiColor->addSpacer();
 	//
 	guiColor->addLabel("index image settings", OFX_UI_FONT_MEDIUM);
-	vector< string > vnamesDepthCLR; vnamesDepthCLR.push_back("PSYCHEDELIC_SHADES"); vnamesDepthCLR.push_back("PSYCHEDELIC"); vnamesDepthCLR.push_back("RAINBOW"); vnamesDepthCLR.push_back("CYCLIC_RAINBOW"); vnamesDepthCLR.push_back("BLUES"); vnamesDepthCLR.push_back("BLUES_INV"); vnamesDepthCLR.push_back("GREY"); vnamesDepthCLR.push_back("STATUS");
-	ofxUIRadio *radioMode = guiColor->addRadio("index color mode", vnamesDepthCLR, OFX_UI_ORIENTATION_VERTICAL);
+	// vector< string > vnamesDepthCLR; vnamesDepthCLR.push_back("PSYCHEDELIC_SHADES"); vnamesDepthCLR.push_back("PSYCHEDELIC"); vnamesDepthCLR.push_back("RAINBOW"); vnamesDepthCLR.push_back("CYCLIC_RAINBOW"); vnamesDepthCLR.push_back("BLUES"); vnamesDepthCLR.push_back("BLUES_INV"); vnamesDepthCLR.push_back("GREY"); vnamesDepthCLR.push_back("STATUS");
+	// ofxUIRadio *radioMode = guiColor->addRadio("index color mode", vnamesDepthCLR, OFX_UI_ORIENTATION_VERTICAL);
 	vector< string > vnamesBlendDEPTH; vnamesBlendDEPTH.push_back("d0"); vnamesBlendDEPTH.push_back("dA"); vnamesBlendDEPTH.push_back("d+"); vnamesBlendDEPTH.push_back("d-"); vnamesBlendDEPTH.push_back("d*"); vnamesBlendDEPTH.push_back("dS");
 	ofxUIRadio *radioBlendDepth = guiColor->addRadio("index blend mode", vnamesBlendDEPTH, OFX_UI_ORIENTATION_HORIZONTAL);
 	guiColor->addSlider("index red", 0.0, 255.0, &indexRed);
@@ -226,13 +226,19 @@ void ofApp::setup() {
 	guiColor->addSlider("index alpha", 0.0, 255.0, &indexAlpha);
 	guiColor->addSpacer();
 	//
-	guiColor->addLabel("skeleton drawing settings", OFX_UI_FONT_MEDIUM);
-	vector< string > vnamesBlendSKEL; vnamesBlendSKEL.push_back("s0"); vnamesBlendSKEL.push_back("sA"); vnamesBlendSKEL.push_back("s+"); vnamesBlendSKEL.push_back("s-"); vnamesBlendSKEL.push_back("s*"); vnamesBlendSKEL.push_back("sS");
-	ofxUIRadio *radioBlendSkel = guiColor->addRadio("skeleton blend mode", vnamesBlendSKEL, OFX_UI_ORIENTATION_HORIZONTAL);
-	guiColor->addSlider("skel red", 0.0, 255.0, &skelRed);
-	guiColor->addSlider("skel green", 0.0, 255.0, &skelGreen);
-	guiColor->addSlider("skel blue", 0.0, 255.0, &skelBlue);
-	guiColor->addSlider("skel alpha", 0.0, 255.0, &skelAlpha);
+	//guiColor->addLabel("skeleton drawing settings", OFX_UI_FONT_MEDIUM);
+	//vector< string > vnamesBlendSKEL; vnamesBlendSKEL.push_back("s0"); vnamesBlendSKEL.push_back("sA"); vnamesBlendSKEL.push_back("s+"); vnamesBlendSKEL.push_back("s-"); vnamesBlendSKEL.push_back("s*"); vnamesBlendSKEL.push_back("sS");
+	//ofxUIRadio *radioBlendSkel = guiColor->addRadio("skeleton blend mode", vnamesBlendSKEL, OFX_UI_ORIENTATION_HORIZONTAL);
+	//guiColor->addSlider("skel red", 0.0, 255.0, &skelRed);
+	//guiColor->addSlider("skel green", 0.0, 255.0, &skelGreen);
+	//guiColor->addSlider("skel blue", 0.0, 255.0, &skelBlue);
+	//guiColor->addSlider("skel alpha", 0.0, 255.0, &skelAlpha);
+	//guiColor->addSpacer();
+	//
+	guiColor->addLabel("transition settings", OFX_UI_FONT_MEDIUM);
+	guiColor->addSlider("seconds", 0.0, 30.0, &transDuration);
+	vector< string > vtransEaseTypes; vtransEaseTypes.push_back("in"); vtransEaseTypes.push_back("out"); vtransEaseTypes.push_back("both");
+	ofxUIRadio *radioTransEase = guiColor->addRadio("ease", vtransEaseTypes, OFX_UI_ORIENTATION_HORIZONTAL);
 	guiColor->addSpacer();
 	//
 	// Save Settings

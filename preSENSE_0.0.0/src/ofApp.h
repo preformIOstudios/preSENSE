@@ -33,6 +33,8 @@ class ofApp : public ofBaseApp{
 		ofxUISuperCanvas *gui;
 		ofxUISuperCanvas *guiColor;
 		int currentLookBank, currentLook, gradientType;
+		float transDuration;
+
 		bool lookChanged;
 		ofImage screenshot;
 		
