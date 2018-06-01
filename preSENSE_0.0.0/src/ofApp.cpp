@@ -728,7 +728,7 @@ void ofApp::update(){
 	// calc draw flags
 	drawRibbons		= drawRibbons_from		* (1 - round(transStatus)) + drawRibbons_to		* round(transStatus);
 	drawParticles	= drawParticles_from	* (1 - round(transStatus)) + drawParticles_to	* round(transStatus);
-	drawRibbons		= drawRibbons_from		* (1 - round(transStatus)) + drawRibbons_to		* round(transStatus);
+	drawBodyIndex	= drawBodyIndex_from	* (1 - round(transStatus)) + drawBodyIndex_to		* round(transStatus);
 
 	// set draw colors
 	bgColor = ofColor(bgRed, bgGreen, bgBlue);
