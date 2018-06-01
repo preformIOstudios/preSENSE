@@ -124,12 +124,12 @@ void ofApp::setup() {
 	toggleFullScreen->bindToKey('F');
 	//
 	// draw ribbons toggle
-	ofxUIToggle* toggleRibbons = gui->addToggle("ribbons", &drawRibbons);
+	ofxUIToggle* toggleRibbons = gui->addToggle("ribbons", &drawRibbons_to);
 	toggleRibbons->bindToKey('o');
 	toggleRibbons->bindToKey('O');
 	//
 	// draw particles toggle
-	ofxUIToggle* toggleParticles = gui->addToggle("particles", &drawParticles);
+	ofxUIToggle* toggleParticles = gui->addToggle("particles", &drawParticles_to);
 	toggleParticles->bindToKey('p');
 	toggleParticles->bindToKey('P');
 	//
@@ -144,7 +144,7 @@ void ofApp::setup() {
 	gui->addSpacer();
 	//
 	// draw index toggle
-	ofxUIToggle* toggleIndex = gui->addToggle("body index", &drawBodyIndex);
+	ofxUIToggle* toggleIndex = gui->addToggle("body index", &drawBodyIndex_to);
 	toggleIndex->bindToKey('i');
 	toggleIndex->bindToKey('I');
 	//
@@ -273,6 +273,9 @@ void ofApp::reloadLook() {
 	fgBlendMode_from = fgBlendMode;
 	indexRed_from = indexRed; indexGreen_from = indexGreen; indexBlue_from = indexBlue; indexAlpha_from = indexAlpha;
 	indexBlendMode_from = indexBlendMode;
+	drawBodyIndex_from = drawBodyIndex;
+	drawParticles_from = drawParticles;
+	drawRibbons_from = drawRibbons;
 
 	gui->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
 	guiColor->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
@@ -681,7 +684,7 @@ void ofApp::update(){
 	// TODO: incorporate different ease types
 	// increment transition status
 	transStatus += transD;
-	// clamp transition status to 1
+	// clamp transition status to 1 max
 	transStatus = MIN(1.0, transStatus);
 	// calc new bgColors
 	bgRed	=	bgRed_to	* transStatus + bgRed_from		* (1.0 - transStatus);
@@ -691,26 +694,31 @@ void ofApp::update(){
 	bgGradRed	= bgGradRed_to		* transStatus + bgGradRed_from		* (1.0 - transStatus);
 	bgGradGreen	= bgGradGreen_to	* transStatus + bgGradGreen_from	* (1.0 - transStatus);
 	bgGradBlue	= bgGradBlue_to		* transStatus + bgGradBlue_from		* (1.0 - transStatus);
-	// alpha factor for fgColor of indexColor Blend Mode changes
+	// alpha factor for visibility and Blend Mode changes
 	float alphaFactor = MIN(0.0 + transStatus * 2, 1.0) + MIN(1.0 - transStatus * 2, 0.0);
 	// calc new fgColors
 	fgRed	= fgRed_to		* transStatus + fgRed_from		* (1.0 - transStatus);
 	fgGreen = fgGreen_to	* transStatus + fgGreen_from	* (1.0 - transStatus);
 	fgBlue	= fgBlue_to		* transStatus + fgBlue_from		* (1.0 - transStatus);
 	fgAlpha = fgAlpha_to	* transStatus + fgAlpha_from	* (1.0 - transStatus);
-	fgAlpha *= 1.0 - alphaFactor * (float)(fgBlendMode_from != fgBlendMode_to); // fade alpha to zero and back if there is a blend mode change
-	fgBlendMode = fgBlendMode_from * (1 - round(transStatus)) + fgBlendMode_to * round(transStatus);
+	fgAlpha *= 1.0 - alphaFactor * (float)((fgBlendMode_from != fgBlendMode_to) || (drawRibbons_to!=drawRibbons_from) || (drawParticles_to!=drawParticles_from)); // fade alpha to zero and back if there is a blend mode change
 	// calc new indexColors
 	indexRed	= indexRed_to		* transStatus + indexRed_from	* (1.0 - transStatus);
 	indexGreen	= indexGreen_to		* transStatus + indexGreen_from * (1.0 - transStatus);
 	indexBlue	= indexBlue_to		* transStatus + indexBlue_from	* (1.0 - transStatus);
 	indexAlpha	= indexAlpha_to		* transStatus + indexAlpha_from * (1.0 - transStatus);
-	indexAlpha *= 1.0 - alphaFactor * (float)(indexBlendMode_from != indexBlendMode_to); // fade alpha to zero and back if there is a blend mode change
-	indexBlendMode = indexBlendMode_from * (1 - round(transStatus)) + indexBlendMode_to * round(transStatus);
+	indexAlpha *= 1.0 - alphaFactor * (float)((indexBlendMode_to != indexBlendMode_from) || (drawBodyIndex_to!=drawBodyIndex_from)); // fade alpha to zero and back if there is a blend mode change
+	// calc blend modes
+	fgBlendMode		= fgBlendMode_from		* (1 - round(transStatus)) + fgBlendMode_to		* round(transStatus);
+	indexBlendMode	= indexBlendMode_from	* (1 - round(transStatus)) + indexBlendMode_to	* round(transStatus);
+	// calc draw flags
+	drawRibbons		= drawRibbons_from		* (1 - round(transStatus)) + drawRibbons_to		* round(transStatus);
+	drawParticles	= drawParticles_from	* (1 - round(transStatus)) + drawParticles_to	* round(transStatus);
+	drawRibbons		= drawRibbons_from		* (1 - round(transStatus)) + drawRibbons_to		* round(transStatus);
 
+	// set draw colors
 	bgColor = ofColor(bgRed, bgGreen, bgBlue);
 	bgGradient = ofColor(bgGradRed, bgGradGreen, bgGradBlue);
-
 	fgColor = ofColor(fgRed, fgGreen, fgBlue, fgAlpha);
 	indexColor = ofColor(indexRed, indexBlue, indexGreen, indexAlpha);
 	skelColor = ofColor(skelRed, skelGreen, skelBlue, skelAlpha);

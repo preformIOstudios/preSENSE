@@ -72,7 +72,11 @@ private: //debugging variables
 	float previewScaleH;
 	ofVec3f depthMapScale;
 	int drawFrameRate;
+
+	// draw flags
 	bool drawBodyIndex, drawParticles, drawRibbons, drawMirrored, drawBones;
+	bool drawBodyIndex_to, drawParticles_to, drawRibbons_to, drawMirrored_to, drawBones_to;
+	bool drawBodyIndex_from, drawParticles_from, drawRibbons_from, drawMirrored_from, drawBones_from;
 
 	// bgColors
 	ofColor bgColor;
