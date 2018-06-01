@@ -23,6 +23,14 @@ void demoParticle::setAttractPoint(ofPoint * attractP) {
 void demoParticle::reset(bool posReset) {
 	reset(posReset, 0.5, 2.0, 3.9, 10000);
 }
+void demoParticle::reset(bool posReset, float _Rmin, float _Rmax) {
+	reset(posReset, _Rmin, _Rmax, 3.9, 10000);
+}
+
+void demoParticle::reset(bool posReset, float _Rmin, float _Rmax, float _velRange) {
+	reset(posReset, _Rmin, _Rmax, _velRange, 10000);
+}
+
 void demoParticle::reset(bool posReset, float _Rmin, float _Rmax, float _velRange, float _uniqueValRange) {
 	//the unique val allows us to set properties slightly differently for each particle
 	uniqueVal = ofRandom(-_uniqueValRange, _uniqueValRange); //TODO: move value into GUI

@@ -47,7 +47,9 @@ class ofApp : public ofBaseApp{
 		int attractionHandID;
 		vector <ofPoint> attractPoints;
 		vector <ofPoint> attractPointsWithMovement;
-		float partRmin, partRmax;
+		float partRmin, partRmax, partVelRange;
+		float partRmin_to, partRmax_to, partVelRange_to;
+		float partRmin_from, partRmax_from, partVelRange_from;
 
 		// ribbons
 		///////////////

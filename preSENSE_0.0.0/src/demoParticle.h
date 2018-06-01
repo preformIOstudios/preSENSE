@@ -19,6 +19,8 @@ class demoParticle{
 
 		//void reset(bool posReset);
 		void reset(bool posReset);
+		void reset(bool posReset, float _Rmin, float _Rmax);
+		void reset(bool posReset, float _Rmin, float _Rmax, float partVelRange);
 		void reset(bool posReset, float _Rmin, float _Rmax, float _velRange, float _uniqueValRange);
 		void update();
 		void draw();		

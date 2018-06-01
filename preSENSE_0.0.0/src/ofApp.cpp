@@ -206,6 +206,7 @@ void ofApp::setup() {
 	ofAddListener(guiColor->newGUIEvent, this, &ofApp::guiEvent);
 	guiColor->addSpacer();
 	//
+	// foreground color settings
 	guiColor->addLabel("foreground color settings", OFX_UI_FONT_MEDIUM);
 	vector< string > vnamesBlendIMG; vnamesBlendIMG.push_back("i0"); vnamesBlendIMG.push_back("iA"); vnamesBlendIMG.push_back("i+"); vnamesBlendIMG.push_back("i-"); vnamesBlendIMG.push_back("i*"); vnamesBlendIMG.push_back("iS");
 	ofxUIRadio *radioBlendIMG = guiColor->addRadio("foreground blend mode", vnamesBlendIMG, OFX_UI_ORIENTATION_HORIZONTAL);
@@ -215,6 +216,7 @@ void ofApp::setup() {
 	guiColor->addSlider("fg alpha", 0.0, 255.0, &fgAlpha_to);
 	guiColor->addSpacer();
 	//
+	// index image display settings
 	guiColor->addLabel("index image settings", OFX_UI_FONT_MEDIUM);
 	// vector< string > vnamesDepthCLR; vnamesDepthCLR.push_back("PSYCHEDELIC_SHADES"); vnamesDepthCLR.push_back("PSYCHEDELIC"); vnamesDepthCLR.push_back("RAINBOW"); vnamesDepthCLR.push_back("CYCLIC_RAINBOW"); vnamesDepthCLR.push_back("BLUES"); vnamesDepthCLR.push_back("BLUES_INV"); vnamesDepthCLR.push_back("GREY"); vnamesDepthCLR.push_back("STATUS");
 	// ofxUIRadio *radioMode = guiColor->addRadio("index color mode", vnamesDepthCLR, OFX_UI_ORIENTATION_VERTICAL);
@@ -226,6 +228,7 @@ void ofApp::setup() {
 	guiColor->addSlider("index alpha", 0.0, 255.0, &indexAlpha_to);
 	guiColor->addSpacer();
 	//
+	// skeleton drawing
 	//guiColor->addLabel("skeleton drawing settings", OFX_UI_FONT_MEDIUM);
 	//vector< string > vnamesBlendSKEL; vnamesBlendSKEL.push_back("s0"); vnamesBlendSKEL.push_back("sA"); vnamesBlendSKEL.push_back("s+"); vnamesBlendSKEL.push_back("s-"); vnamesBlendSKEL.push_back("s*"); vnamesBlendSKEL.push_back("sS");
 	//ofxUIRadio *radioBlendSkel = guiColor->addRadio("skeleton blend mode", vnamesBlendSKEL, OFX_UI_ORIENTATION_HORIZONTAL);
@@ -235,11 +238,14 @@ void ofApp::setup() {
 	//guiColor->addSlider("skel alpha", 0.0, 255.0, &skelAlpha);
 	//guiColor->addSpacer();
 	//
+	// particles
 	guiColor->addLabel("particle settings", OFX_UI_FONT_MEDIUM);
-	guiColor->addSlider("r min", 0.0, 255.0, &partRmin);
-	guiColor->addSlider("r max", 0.0, 255.0, &partRmax);
+	guiColor->addSlider("r min", 0.0, 100.0, &partRmin_to);
+	guiColor->addSlider("r max", 0.0, 100.0, &partRmax_to);
+	guiColor->addSlider("particle velocity range", 0.0, 100.0, &partVelRange_to);
 	guiColor->addSpacer();
 	//
+	// transitions
 	guiColor->addLabel("transition settings", OFX_UI_FONT_MEDIUM);
 	guiColor->addSlider("seconds", 0.0, 30.0, &transDuration);
 	vector< string > vtransEaseTypes; vtransEaseTypes.push_back("in"); vtransEaseTypes.push_back("out"); vtransEaseTypes.push_back("both");
@@ -270,13 +276,16 @@ void ofApp::reloadLook() {
 	bgRed_from = bgRed; bgGreen_from = bgGreen; bgBlue_from = bgBlue;
 	bgGradRed_from = bgGradRed; bgGradGreen_from = bgGradGreen; bgGradBlue_from = bgGradBlue;
 	fgRed_from = fgRed; fgGreen_from = fgGreen; fgBlue_from = fgBlue; fgAlpha_from = fgAlpha;
-	fgBlendMode_from = fgBlendMode;
 	indexRed_from = indexRed; indexGreen_from = indexGreen; indexBlue_from = indexBlue; indexAlpha_from = indexAlpha;
+	fgBlendMode_from = fgBlendMode;
 	indexBlendMode_from = indexBlendMode;
 	drawBodyIndex_from = drawBodyIndex;
 	drawParticles_from = drawParticles;
+	partVelRange_from = partVelRange;
 	drawRibbons_from = drawRibbons;
+	partRmax_from = partRmax; partRmin_from = partRmin;
 
+	// load new color settings
 	gui->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
 	guiColor->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
 
@@ -290,6 +299,7 @@ void ofApp::reloadLook() {
 	transD = 1.0 / transSteps; // (amount to transtion each step)
 	transStatus = 0.0;
 
+	// reset GUI
 	resetGuiPositions();
 }
 
@@ -673,7 +683,7 @@ void ofApp::resetParticles(bool posReset = false) {
 		} else {
 			particles[i].setAttractPoint(NULL);
 		}
-		particles[i].reset(posReset);
+		particles[i].reset(posReset, partRmin, partRmax, partVelRange);
 	}	
 }
 
@@ -708,6 +718,10 @@ void ofApp::update(){
 	indexBlue	= indexBlue_to		* transStatus + indexBlue_from	* (1.0 - transStatus);
 	indexAlpha	= indexAlpha_to		* transStatus + indexAlpha_from * (1.0 - transStatus);
 	indexAlpha *= 1.0 - alphaFactor * (float)((indexBlendMode_to != indexBlendMode_from) || (drawBodyIndex_to!=drawBodyIndex_from)); // fade alpha to zero and back if there is a blend mode change
+	// calc particle values
+	partRmin		= partRmin_to		* transStatus + partRmin_from		* (1.0 - transStatus);
+	partRmax		= partRmax_to		* transStatus + partRmax_from		* (1.0 - transStatus);
+	partVelRange	= partVelRange_to	* transStatus + partVelRange_from	* (1.0 - transStatus);
 	// calc blend modes
 	fgBlendMode		= fgBlendMode_from		* (1 - round(transStatus)) + fgBlendMode_to		* round(transStatus);
 	indexBlendMode	= indexBlendMode_from	* (1 - round(transStatus)) + indexBlendMode_to	* round(transStatus);
