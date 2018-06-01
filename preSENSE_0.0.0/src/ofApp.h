@@ -63,9 +63,8 @@ class ofApp : public ofBaseApp{
 		// kinect device reference
 		ofxKFW2::Device kinect;
 
-private:
+private: //debugging variables
 
-	//debugging variables
 	bool debugging;
 	int previewWidth;
 	int previewHeight;
@@ -84,11 +83,24 @@ private:
 	float bgGradRed_to, bgGradGreen_to, bgGradBlue_to;
 	float bgRed_from, bgGreen_from, bgBlue_from;
 	float bgGradRed_from, bgGradGreen_from, bgGradBlue_from;
+
+	// fgColors
 	ofColor fgColor;
 	float fgRed, fgGreen, fgBlue, fgAlpha;
 	ofColor indexColor;
 	float indexRed, indexGreen, indexBlue, indexAlpha;
 	ofColor skelColor;
 	float skelRed, skelGreen, skelBlue, skelAlpha;
+	float fgRed_to, fgGreen_to, fgBlue_to, fgAlpha_to;
+	float indexRed_to, indexGreen_to, indexBlue_to, indexAlpha_to;
+	float skelRed_to, skelGreen_to, skelBlue_to, skelAlpha_to;
+	float fgRed_from, fgGreen_from, fgBlue_from, fgAlpha_from;
+	float indexRed_from, indexGreen_from, indexBlue_from, indexAlpha_from;
+	float skelRed_from, skelGreen_from, skelBlue_from, skelAlpha_from;
+
+	// blend & color modes
 	int fgBlendMode, indexColorMode, indexBlendMode, skelBlendMode;
+	int fgBlendMode_to, indexColorMode_to, indexBlendMode_to, skelBlendMode_to;
+	int fgBlendMode_from, indexColorMode_from, indexBlendMode_from, skelBlendMode_from;
+
 };

@@ -209,10 +209,10 @@ void ofApp::setup() {
 	guiColor->addLabel("foreground color settings", OFX_UI_FONT_MEDIUM);
 	vector< string > vnamesBlendIMG; vnamesBlendIMG.push_back("i0"); vnamesBlendIMG.push_back("iA"); vnamesBlendIMG.push_back("i+"); vnamesBlendIMG.push_back("i-"); vnamesBlendIMG.push_back("i*"); vnamesBlendIMG.push_back("iS");
 	ofxUIRadio *radioBlendIMG = guiColor->addRadio("foreground blend mode", vnamesBlendIMG, OFX_UI_ORIENTATION_HORIZONTAL);
-	guiColor->addSlider("fg red", 0.0, 255.0, &fgRed);
-	guiColor->addSlider("fg green", 0.0, 255.0, &fgGreen);
-	guiColor->addSlider("fg blue", 0.0, 255.0, &fgBlue);
-	guiColor->addSlider("fg alpha", 0.0, 255.0, &fgAlpha);
+	guiColor->addSlider("fg red", 0.0, 255.0, &fgRed_to);
+	guiColor->addSlider("fg green", 0.0, 255.0, &fgGreen_to);
+	guiColor->addSlider("fg blue", 0.0, 255.0, &fgBlue_to);
+	guiColor->addSlider("fg alpha", 0.0, 255.0, &fgAlpha_to);
 	guiColor->addSpacer();
 	//
 	guiColor->addLabel("index image settings", OFX_UI_FONT_MEDIUM);
@@ -220,10 +220,10 @@ void ofApp::setup() {
 	// ofxUIRadio *radioMode = guiColor->addRadio("index color mode", vnamesDepthCLR, OFX_UI_ORIENTATION_VERTICAL);
 	vector< string > vnamesBlendDEPTH; vnamesBlendDEPTH.push_back("d0"); vnamesBlendDEPTH.push_back("dA"); vnamesBlendDEPTH.push_back("d+"); vnamesBlendDEPTH.push_back("d-"); vnamesBlendDEPTH.push_back("d*"); vnamesBlendDEPTH.push_back("dS");
 	ofxUIRadio *radioBlendDepth = guiColor->addRadio("index blend mode", vnamesBlendDEPTH, OFX_UI_ORIENTATION_HORIZONTAL);
-	guiColor->addSlider("index red", 0.0, 255.0, &indexRed);
-	guiColor->addSlider("index green", 0.0, 255.0, &indexGreen);
-	guiColor->addSlider("index blue", 0.0, 255.0, &indexBlue);
-	guiColor->addSlider("index alpha", 0.0, 255.0, &indexAlpha);
+	guiColor->addSlider("index red", 0.0, 255.0, &indexRed_to);
+	guiColor->addSlider("index green", 0.0, 255.0, &indexGreen_to);
+	guiColor->addSlider("index blue", 0.0, 255.0, &indexBlue_to);
+	guiColor->addSlider("index alpha", 0.0, 255.0, &indexAlpha_to);
 	guiColor->addSpacer();
 	//
 	//guiColor->addLabel("skeleton drawing settings", OFX_UI_FONT_MEDIUM);
@@ -269,6 +269,10 @@ void ofApp::reloadLook() {
 	// save current values to "_from" variables ("_to" variables are handled by the GUI)
 	bgRed_from = bgRed; bgGreen_from = bgGreen; bgBlue_from = bgBlue;
 	bgGradRed_from = bgGradRed; bgGradGreen_from = bgGradGreen; bgGradBlue_from = bgGradBlue;
+	fgRed_from = fgRed; fgGreen_from = fgGreen; fgBlue_from = fgBlue; fgAlpha_from = fgAlpha;
+	fgBlendMode_from = fgBlendMode;
+	indexRed_from = indexRed; indexGreen_from = indexGreen; indexBlue_from = indexBlue; indexAlpha_from = indexAlpha;
+	indexBlendMode_from = indexBlendMode;
 
 	gui->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + ".xml");
 	guiColor->loadSettings("guiSettings_" + ofToString(currentLookBank) + ofToString(currentLook) + "_color.xml");
@@ -498,27 +502,27 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 				switch (ofToChar(toggle->getName().substr(1, 1))) {
 
 				case '0': // 
-					fgBlendMode = 0;
+					fgBlendMode_to = 0;
 					break;
 
 				case 'A': // 
-					fgBlendMode = 1;
+					fgBlendMode_to = 1;
 					break;
 
 				case '+': // 
-					fgBlendMode = 2;
+					fgBlendMode_to = 2;
 					break;
 
 				case '-': // 
-					fgBlendMode = 3;
+					fgBlendMode_to = 3;
 					break;
 
 				case '*': // 
-					fgBlendMode = 4;
+					fgBlendMode_to = 4;
 					break;
 
 				case 'S': // 
-					fgBlendMode = 6;
+					fgBlendMode_to = 6;
 					break;
 
 				default:
@@ -555,27 +559,27 @@ void ofApp::guiEvent(ofxUIEventArgs &e) {
 				switch (ofToChar(toggle->getName().substr(1, 1))) {
 
 				case '0': // 
-					indexBlendMode = 0;
+					indexBlendMode_to = 0;
 					break;
 
 				case 'A': // 
-					indexBlendMode = 1;
+					indexBlendMode_to = 1;
 					break;
 
 				case '+': // 
-					indexBlendMode = 2;
+					indexBlendMode_to = 2;
 					break;
 
 				case '-': // 
-					indexBlendMode = 3;
+					indexBlendMode_to = 3;
 					break;
 
 				case '*': // 
-					indexBlendMode = 4;
+					indexBlendMode_to = 4;
 					break;
 
 				case 'S': // 
-					indexBlendMode = 6;
+					indexBlendMode_to = 6;
 					break;
 
 				default:
@@ -673,7 +677,6 @@ void ofApp::resetParticles(bool posReset = false) {
 //--------------------------------------------------------------
 void ofApp::update(){
 
-	fgColor = ofColor(fgRed, fgGreen, fgBlue, fgAlpha);
 	// calculate colors based on blend between _to and _from values
 	// TODO: incorporate different ease types
 	// increment transition status
@@ -681,17 +684,34 @@ void ofApp::update(){
 	// clamp transition status to 1
 	transStatus = MIN(1.0, transStatus);
 	// calc new bgColors
-	bgRed = bgRed_to * transStatus + bgRed_from * (1.0 - transStatus);
-	bgGreen = bgGreen_to * transStatus + bgGreen_from * (1.0 - transStatus);
-	bgBlue = bgBlue_to * transStatus + bgBlue_from * (1.0 - transStatus);
+	bgRed	=	bgRed_to	* transStatus + bgRed_from		* (1.0 - transStatus);
+	bgGreen =	bgGreen_to	* transStatus + bgGreen_from	* (1.0 - transStatus);
+	bgBlue	=	bgBlue_to	* transStatus + bgBlue_from		* (1.0 - transStatus);
 	// calc new bgGradColors
-	bgGradRed = bgGradRed_to * transStatus + bgGradRed_from * (1.0 - transStatus);
-	bgGradGreen = bgGradGreen_to * transStatus + bgGradGreen_from * (1.0 - transStatus);
-	bgGradBlue = bgGradBlue_to * transStatus + bgGradBlue_from * (1.0 - transStatus);
+	bgGradRed	= bgGradRed_to		* transStatus + bgGradRed_from		* (1.0 - transStatus);
+	bgGradGreen	= bgGradGreen_to	* transStatus + bgGradGreen_from	* (1.0 - transStatus);
+	bgGradBlue	= bgGradBlue_to		* transStatus + bgGradBlue_from		* (1.0 - transStatus);
+	// alpha factor for fgColor of indexColor Blend Mode changes
+	float alphaFactor = MIN(0.0 + transStatus * 2, 1.0) + MIN(1.0 - transStatus * 2, 0.0);
+	// calc new fgColors
+	fgRed	= fgRed_to		* transStatus + fgRed_from		* (1.0 - transStatus);
+	fgGreen = fgGreen_to	* transStatus + fgGreen_from	* (1.0 - transStatus);
+	fgBlue	= fgBlue_to		* transStatus + fgBlue_from		* (1.0 - transStatus);
+	fgAlpha = fgAlpha_to	* transStatus + fgAlpha_from	* (1.0 - transStatus);
+	fgAlpha *= 1.0 - alphaFactor * (float)(fgBlendMode_from != fgBlendMode_to); // fade alpha to zero and back if there is a blend mode change
+	fgBlendMode = fgBlendMode_from * (1 - round(transStatus)) + fgBlendMode_to * round(transStatus);
+	// calc new indexColors
+	indexRed	= indexRed_to		* transStatus + indexRed_from	* (1.0 - transStatus);
+	indexGreen	= indexGreen_to		* transStatus + indexGreen_from * (1.0 - transStatus);
+	indexBlue	= indexBlue_to		* transStatus + indexBlue_from	* (1.0 - transStatus);
+	indexAlpha	= indexAlpha_to		* transStatus + indexAlpha_from * (1.0 - transStatus);
+	indexAlpha *= 1.0 - alphaFactor * (float)(indexBlendMode_from != indexBlendMode_to); // fade alpha to zero and back if there is a blend mode change
+	indexBlendMode = indexBlendMode_from * (1 - round(transStatus)) + indexBlendMode_to * round(transStatus);
 
 	bgColor = ofColor(bgRed, bgGreen, bgBlue);
 	bgGradient = ofColor(bgGradRed, bgGradGreen, bgGradBlue);
 
+	fgColor = ofColor(fgRed, fgGreen, fgBlue, fgAlpha);
 	indexColor = ofColor(indexRed, indexBlue, indexGreen, indexAlpha);
 	skelColor = ofColor(skelRed, skelGreen, skelBlue, skelAlpha);
 
